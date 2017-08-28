@@ -1,9 +1,7 @@
-﻿using Levi9Library.DataAccess;
-using Microsoft.AspNet.Identity;
+﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -42,7 +40,7 @@ namespace Levi9Library.Models
 		}
 	}
 
-	public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+/*	public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
 	    public DbSet<Book> Books { get; set; }
 	    public DbSet<UserBook> UserBooks { get; set; }
@@ -77,6 +75,6 @@ namespace Levi9Library.Models
 			    return SaveChanges();
 		    }
 	    }
-*/
-	}
+#1#
+	}*/
 }

@@ -1,10 +1,31 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Levi9Library.Models;
-
-namespace Levi9Library.DataAccess
+﻿namespace Levi9Library.Models
 {
+	using System;
+	using System.ComponentModel.DataAnnotations;
+	using System.ComponentModel.DataAnnotations.Schema;
+
+	//public partial class UserBook
+	//{
+	//	[Key]
+	//	[Column(Order = 0)]
+	//	public string Id { get; set; }
+
+	//	[Key]
+	//	[Column(Order = 1)]
+	//	[DatabaseGenerated(DatabaseGeneratedOption.None)]
+	//	public int BookId { get; set; }
+
+	//	[Key]
+	//	[Column(Order = 2)]
+	//	public DateTime DateBorrowed { get; set; }
+
+	//	public DateTime? DateReturned { get; set; }
+
+	//	public virtual AspNetUser AspNetUser { get; set; }
+
+	//	public virtual Book Book { get; set; }
+	//}
+
 	public class UserBook
 	{
 		[Key, ForeignKey("ApplicationUser"), Column(Order = 0)]

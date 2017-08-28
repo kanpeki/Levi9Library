@@ -1,13 +1,11 @@
 namespace Levi9Library.Migrations
 {
-	using DataAccess;
 	using Microsoft.AspNet.Identity;
 	using Microsoft.AspNet.Identity.EntityFramework;
 	using Models;
-	using System;
 	using System.Data.Entity.Migrations;
 
-	internal sealed class Configuration : DbMigrationsConfiguration<Levi9Library.Models.ApplicationDbContext>
+	internal sealed class Configuration : DbMigrationsConfiguration<Levi9LibraryDb>
     {
         public Configuration()
         {
@@ -15,7 +13,7 @@ namespace Levi9Library.Migrations
 			//AutomaticMigrationsEnabled = true;
 		}
 
-        protected override void Seed(ApplicationDbContext context)
+        protected override void Seed(Levi9LibraryDb context)
         {
 			//  This method will be called after migrating to the latest version.
 
