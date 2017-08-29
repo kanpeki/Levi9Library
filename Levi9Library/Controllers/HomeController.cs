@@ -1,9 +1,8 @@
 ﻿using Levi9Library.Models;
+using Levi9Library.Models.ViewModels;
 using Microsoft.AspNet.Identity;
 using System;
-using System.Data.Entity;
 using System.Linq;
-using System.Net;
 using System.Web.Mvc;
 
 namespace Levi9Library.Controllers
@@ -12,62 +11,83 @@ namespace Levi9Library.Controllers
 	public class HomeController : Controller
 	{
 		private readonly Levi9LibraryDb _dbContext;
+		public static DateTime DefaultDateTime { get; } = default(DateTime);
 
 		public HomeController()
 		{
 			_dbContext = new Levi9LibraryDb();
 		}
 
-		public HomeController (Levi9LibraryDb db)
+		public HomeController(Levi9LibraryDb db)
 		{
 			_dbContext = db;
 		}
 
 		public ActionResult Index()
 		{
+			var userId = User.Identity.GetUserId();
+			var user = _dbContext.Users.FirstOrDefault(u => u.Id.Equals(userId));
 			var availableBooks = _dbContext.Books
-				.Where(book => book.Stock > 0)
-				.ToList();
-			return View(availableBooks);
+								.Where(book => book.Stock > 0)
+								.Select(b => new BookViewModel
+								{
+									BookId = b.BookId,
+									Title = b.Title,
+									Author = b.Author,
+									Stock = b.Stock,
+									BookScore = b.BookScore
+								});
+			var model = new MainViewModel
+			{
+				AvailableBooks = availableBooks.ToList(),
+				UserScore = user == null ? 0 : user.UserScore
+			};
+			return View(model);
 		}
 
 		public ActionResult History()
 		{
 			var userId = User.Identity.GetUserId();
+			var user = _dbContext.Users.FirstOrDefault(u => u.Id.Equals(userId));
 			var userBooks = from ub in _dbContext.UserBooks
 							join b in _dbContext.Books on ub.BookId equals b.BookId
 							where ub.ApplicationUser.Id == userId
-							select new LibraryViewModels.LendingHistoryViewModel
+							select new LendingHistoryViewModel
 							{
 								BookId = b.BookId,
 								Author = b.Author,
 								Title = b.Title,
 								BookScore = b.BookScore,
 								DateBorrowed = ub.DateBorrowed,
-								DateReturned = ub.DateReturned ?? default(DateTime) //if DateReturned is null assign default(DateTime)
+								DateReturned = ub.DateReturned
 							};
-			return View(userBooks.ToList());
+			var model = new HistoryViewModel
+			{
+				BorrowedBooks = userBooks.ToList(),
+				UserScore = user == null ? 0 : user.UserScore
+			};
+			return View(model);
 		}
 
-		public ActionResult Borrow(int? id)
+		public ActionResult Borrow(int id = 0)
 		{
-			if (id == null)
-			{
-				return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-			}
-			var book = (from b in _dbContext.Books
-				where b.BookId == id
-				select b).First();
+			var book = _dbContext.Books.Single(b => b.BookId == id);
 			if (book == null)
 			{
 				return HttpNotFound();
 			}
 			var userId = User.Identity.GetUserId();
-			var bookInList = (from ub in _dbContext.UserBooks
-							where ub.Id.Equals(userId) && ub.BookId.Equals(id) && ub.DateReturned.Equals(null)
-							select ub)
+
+			/*var bookInList = (from ub in _dbContext.UserBooks
+							  where ub.Id.Equals(userId) && ub.BookId == id && ub.DateReturned.Equals(DefaultDateTime)
+							  select ub)
+							  .ToList();*/
+
+			var bookInList = _dbContext
+							.UserBooks
+							.Where(ub => ub.Id.Equals(userId) && ub.BookId == id && ub.DateReturned.Equals(DefaultDateTime))
 							.ToList();
-			
+
 			if (book.Stock > 0 && bookInList.Count == 0)
 			{
 				TempData["Success"] = "Hurray! I knew Levi9-ers were starving for knowledge :)";
@@ -75,8 +95,9 @@ namespace Levi9Library.Controllers
 				var borrowedBook = new UserBook
 				{
 					Id = userId,
-					BookId = (int) id,
-					DateBorrowed = DateTime.Now
+					BookId = id,
+					DateBorrowed = DateTime.UtcNow,
+					DateReturned = DefaultDateTime
 				};
 				_dbContext.UserBooks.Add(borrowedBook);
 				_dbContext.SaveChanges();
@@ -94,44 +115,25 @@ namespace Levi9Library.Controllers
 		}
 
 
-		public ActionResult Return(int? id)
+		public ActionResult Return(int id = 0)
 		{
-			if (id == null)
-			{
-				return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-			}
 			var userId = User.Identity.GetUserId();
-			var returnedBook = (from ub in _dbContext.UserBooks
-								where ub.Id.Equals(userId) && ub.BookId.Equals(id) && ub.DateReturned.Equals(null)
-								select ub)
-								.FirstOrDefault();
-			if (returnedBook == null)
+			var returnedBook = _dbContext.UserBooks.Single(ub => ub.Id.Equals(userId) && ub.BookId == id && ub.DateReturned.Equals(DefaultDateTime));
+			var bookToUpdate = _dbContext.Books.Single(b => b.BookId == id);
+			var user = _dbContext.Users.Single(u => u.Id.Equals(userId));
+
+			if (returnedBook == null || bookToUpdate == null || user == null)
 			{
 				return HttpNotFound();
 			}
 
-			var bookToUpdate = (from b in _dbContext.Books
-								where b.BookId.Equals(id)
-								select b)
-								.First();
+			returnedBook.DateReturned = DateTime.UtcNow;
 			bookToUpdate.Stock++;
-
-			var user = (from u in _dbContext.Users
-						where u.Id.Equals(userId)
-						select u)
-						.First();
 			user.UserScore += bookToUpdate.BookScore;
-
 			TempData["NewUserScore"] = user.UserScore.ToString();
-			returnedBook.DateReturned = DateTime.Now;
-
-			_dbContext.Entry(bookToUpdate).State = EntityState.Modified;
-			_dbContext.Entry(user).State = EntityState.Modified;
-			_dbContext.Entry(returnedBook).State = EntityState.Modified;
-
 			_dbContext.SaveChanges();
-
 			return RedirectToAction("History");
 		}
+
 	}
 }

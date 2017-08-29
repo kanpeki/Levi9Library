@@ -1,12 +1,13 @@
-﻿@using Levi9Library.Models
-@model ICollection<LibraryViewModels.LendingHistoryViewModel>
+﻿@using Levi9Library.Models.ViewModels
+@model HistoryViewModel
 @{
 	ViewBag.Title = "History";
 }
 
 <br />
 <br />
-<h3 style="float: right;">Your score: @User.Identity.GetUserScore()</h3>
+
+<h3 style="float: right;">Your score: @Model.UserScore</h3>
 
 <br />
 <br />
@@ -23,14 +24,14 @@
 			<th>DateReturned</th>
 		</tr>
 	</thead>
-	@foreach (var entry in Model)
+	@foreach (var entry in Model.BorrowedBooks)
 	{
 		<tr>
 			<td>@Html.DisplayFor(modelItem => entry.Author)</td>
 			<td>@Html.DisplayFor(modelItem => entry.Title)</td>
 			<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
 			<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
-			@if (@entry.DateReturned == default(DateTime))
+			@if (entry.DateReturned == default(DateTime))
 			{
 				<td>
 					@Html.ActionLink("Return", "Return", new { id = entry.BookId })
@@ -39,7 +40,7 @@
 			else
 			{
 				<td>
-					@entry.DateReturned
+					@Html.DisplayFor(modelItem => entry.DateReturned)
 				</td>
 			}
 
