@@ -1,0 +1,83 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using Levi9Library.Models.ViewModels
+@model MainViewModel
+@{
+	ViewBag.Title = "Home Page";
+}
+
+<br />
+<br />
+
+<h3 style="float: right;">Your score: @Model.UserScore</h3>
+
+<br />
+<br />
+
+<h3>Books available for lending</h3>
+<br />
+
+@if (TempData["AlreadyBorrowed"] != null)
+{
+	<div class="alert alert-danger alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["AlreadyBorrowed"].ToString()
+	</div>
+
+	<br/>
+}
+
+@if (TempData["Success"] != null)
+{
+	<div class="alert alert-success alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["Success"].ToString()
+	</div>
+
+	<br />
+}
+
+
+
+<table id="availableBooks" class="table table-hover">
+	<thead>
+	<tr>
+		<th>
+			Author
+		</th>
+		<th>
+			Title
+		</th>
+		<th>
+			Book Score
+		</th>
+		<th>@*Borrow*@</th>
+	</tr>
+	</thead>
+	@foreach (var book in Model.AvailableBooks)
+	{
+		<tr>
+			<td>
+				@Html.DisplayFor(modelItem => book.Author)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => book.Title)
+			</td>
+			<td>
+				@Html.DisplayFor(modelItem => book.BookScore)
+			</td>
+			@if(book.Stock > 0)
+			{
+				<td>
+					@Html.ActionLink("Borrow", "Borrow", new {id = book.BookId})
+				</td>
+			}
+			else
+			{
+				<td>Not available</td>
+			}
+		</tr>
+	}
+</table>
