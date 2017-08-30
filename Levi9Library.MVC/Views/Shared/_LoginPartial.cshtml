@@ -1,0 +1,34 @@
+﻿@using Microsoft.AspNet.Identity
+@if (Request.IsAuthenticated)
+{
+	using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+	{
+	@Html.AntiForgeryToken()
+
+		<ul class="nav navbar-nav navbar-right">
+			<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" 
+				&& ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")">
+				@Html.ActionLink("Home", "Index", "Home")
+			</li>
+			<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "History" ? "active" : "")">
+				@Html.ActionLink("History", "History", "Home")
+			</li>
+			<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" 
+				&& ViewContext.RouteData.Values["Controller"].ToString() == "Manage" ? "active" : "")">
+				@Html.ActionLink("Hello " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new {title = "Manage"})
+			</li>
+			<li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+		</ul>
+	}
+}
+else
+{
+	<ul class="nav navbar-nav navbar-right">
+		<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Register" ? "active" : "")">
+			@Html.ActionLink("Register", "Register", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })
+		</li>
+		<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Login" ? "active" : "")">
+			@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new {id = "loginLink"})
+		</li>
+	</ul>
+}
