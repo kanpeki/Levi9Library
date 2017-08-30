@@ -25,8 +25,18 @@ namespace Levi9Library.Controllers
 
 		public ActionResult Index()
 		{
+			return View();
+		}
+
+		public PartialViewResult UserScore()
+		{
 			var userId = User.Identity.GetUserId();
 			var user = _dbContext.Users.FirstOrDefault(u => u.Id.Equals(userId));
+			return PartialView("_UserScore", user == null ? 0 : user.UserScore);
+		}
+
+		public PartialViewResult AvailableBooks()
+		{
 			var availableBooks = _dbContext.Books
 								.Where(book => book.Stock > 0)
 								.Select(b => new BookViewModel
@@ -36,13 +46,19 @@ namespace Levi9Library.Controllers
 									Author = b.Author,
 									Stock = b.Stock,
 									BookScore = b.BookScore
-								});
-			var model = new MainViewModel
-			{
-				AvailableBooks = availableBooks.ToList(),
-				UserScore = user == null ? 0 : user.UserScore
-			};
-			return View(model);
+								})
+								.ToList();
+			return PartialView("_AvailableBooks", availableBooks);
+		}
+
+		public PartialViewResult CurrentlyBorrowing()
+		{
+			var userId = User.Identity.GetUserId();
+			var borrowedBooks = _dbContext
+								.UserBooks
+								.Where(ub => ub.Id.Equals(userId) && ub.DateReturned.Equals(DefaultDateTime))
+								.ToList();
+			return PartialView("_CurrentlyBorrowing", borrowedBooks);
 		}
 
 		public ActionResult History()
@@ -77,11 +93,6 @@ namespace Levi9Library.Controllers
 				return HttpNotFound();
 			}
 			var userId = User.Identity.GetUserId();
-
-			/*var bookInList = (from ub in _dbContext.UserBooks
-							  where ub.Id.Equals(userId) && ub.BookId == id && ub.DateReturned.Equals(DefaultDateTime)
-							  select ub)
-							  .ToList();*/
 
 			var bookInList = _dbContext
 							.UserBooks

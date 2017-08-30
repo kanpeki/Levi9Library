@@ -334,6 +334,9 @@
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
+    <Content Include="Views\Home\_UserScore.cshtml" />
+    <Content Include="Views\Home\_AvailableBooks.cshtml" />
+    <Content Include="Views\Home\_CurrentlyBorrowing.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
