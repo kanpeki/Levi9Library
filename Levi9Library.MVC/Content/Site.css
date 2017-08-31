@@ -1,4 +1,8 @@
-﻿body {
+﻿html, body {
+	height: 100%;
+}
+
+body {
 	padding-top: 50px;
 	padding-bottom: 20px;
 }
@@ -28,6 +32,10 @@ textarea {
 ***** Custom CSS *****
 */
 
+.score-display {
+	float: right;
+	padding: 10px;
+}
 /* Navigation */
 .navbar-inverse, .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
 	background: #1434A0;
@@ -38,10 +46,19 @@ textarea {
 }
 
 /* Footer */
-footer {
-	position: absolute;
-	bottom: 0;
-	width: 100%;
+#wrap {
+	padding-left: 15px;
+	padding-right: 15px;
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	/* Negative indent footer by it's height */
+	margin: 0 auto -50px;
+}
+
+#push,
+#footer {
+	height: 50px;
 }
 
 footer p {

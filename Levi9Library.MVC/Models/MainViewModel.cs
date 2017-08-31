@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using PagedList;
 
 namespace Levi9Library.MVC.Models
 {
 	public class MainViewModel
 	{
-		public ICollection<BookViewModel> AvailableBooks;
+		public IPagedList<BookViewModel> AvailableBooks;
 		public int UserScore;
 	}
 }

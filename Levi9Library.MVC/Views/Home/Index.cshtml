@@ -1,14 +1,24 @@
-﻿@using Levi9Library.MVC.Models
+﻿@using PagedList.Mvc
+@using Levi9Library.MVC.Models
 @model MainViewModel
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 @{
 	Layout = "~/Views/Shared/_Layout.cshtml";
 	ViewBag.Title = "Home Page";
 }
 
+
+<h3 class="score-display">Your score: @Model.UserScore</h3>
+
 <br />
 <br />
 
-<h3 style="float: right;">Your score: @Model.UserScore</h3>
+@using (Html.BeginForm())
+{
+	<p>
+		@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { placeholder = "Search by Author or Title" })
+		<input type="submit" value="Search" /></p>
+}
 
 <br />
 <br />
@@ -37,18 +47,17 @@
 }
 
 
-
 <table id="availableBooks" class="table table-hover">
 	<thead>
 	<tr>
 		<th>
-			@Html.ActionLink("Author", "Index", new { sortOrder = ViewBag.AuthorSort })
+			@Html.ActionLink("Author", "Index", new { sortOrder = ViewBag.AuthorSort, currentFilter = ViewBag.CurrentFilter })
 		</th>
 		<th>
-			@Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort })
+			@Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter })
 		</th>
 		<th>
-			@Html.ActionLink("Book Score", "Index", new { sortOrder = ViewBag.BookScoreSort })
+			@Html.ActionLink("Book Score", "Index", new { sortOrder = ViewBag.BookScoreSort, currentFilter = ViewBag.CurrentFilter })
 		</th>
 		<th>@*Borrow*@</th>
 	</tr>
@@ -78,3 +87,10 @@
 		</tr>
 	}
 </table>
+
+<br />
+
+Page @(Model.AvailableBooks.PageCount < Model.AvailableBooks.PageNumber ? 0 : Model.AvailableBooks.PageNumber) of @Model.AvailableBooks.PageCount
+
+@Html.PagedListPager(Model.AvailableBooks, page => Url.Action("Index",
+	new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))

@@ -77,7 +77,12 @@ namespace Levi9Library.Infrastructure.Migrations
 							b => b.Title,
 							new Book { Title = "Introduction to algorithms", Author = "Thomas H. Cormen", Stock = 3, BookScore = 10 },
 							new Book { Title = "The Art of Computer Programming", Author = "Donald Knuth", Stock = 1, BookScore = 30 },
-							new Book { Title = "Introduction to the Theory of Computation", Author = "Michael Sipser", Stock = 2, BookScore = 15 }
+							new Book { Title = "Introduction to the Theory of Computation", Author = "Michael Sipser", Stock = 2, BookScore = 15 },
+							new Book { Title = "Code Complete", Author = "Steve McConnell", Stock = 2, BookScore = 20 },
+							new Book { Title = "Modern Operating Systems", Author = "Andrew S. Tanenbaum", Stock = 2, BookScore = 10 },
+							new Book { Title = "Domain-driven Design", Author = "Eric J. Evans", Stock = 1, BookScore = 15 },
+							new Book { Title = "The Clean Coder", Author = "John Martin", Stock = 1, BookScore = 20 },
+							new Book { Title = "Hacking: The Art of Exploitation", Author = "Jon Erickson", Stock = 1, BookScore = 10 }
 						);*/
 			/*			context.UserBooks.AddOrUpdate(
 							ub => new { ub.Id, ub.BookId, ub.DateBorrowed },
