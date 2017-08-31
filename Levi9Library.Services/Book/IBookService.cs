@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Levi9Library.Core;
+using Levi9Library.Services.DTOs;
 using Levi9LibraryDomain;
 
 namespace Levi9LibraryServices
@@ -9,7 +10,7 @@ namespace Levi9LibraryServices
 	{
 		IList<Book> GetBooks();
 		IList<Book> GetAvailableBooks();
-		IQueryable<BookWithDatesNoStockDto> GetBorrowedBooks(string userId);
+		IList<BookWithDatesNoStockDto> GetBorrowedBooks(string userId);
 		Book GetBook(int bookId);
 		void AddBook(string title, string author, int stock, int bookScore);
 		void UpdateBook(int id, string title, string author, int stock, int bookScore);

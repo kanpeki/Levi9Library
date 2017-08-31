@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Levi9LibraryDomain
+namespace Levi9Library.Services.DTOs
 {
 	public class BookWithDatesNoStockDto
 	{

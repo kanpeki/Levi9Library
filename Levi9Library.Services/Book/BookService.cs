@@ -3,6 +3,7 @@ using Levi9LibraryDomain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Levi9Library.Services.DTOs;
 
 namespace Levi9LibraryServices
 {
@@ -27,9 +28,23 @@ namespace Levi9LibraryServices
 			return _bookRepository.GetAvailableBooks();
 		}
 
-		public IQueryable<BookWithDatesNoStockDto> GetBorrowedBooks(string userId)
+		public IList<BookWithDatesNoStockDto> GetBorrowedBooks(string userId)
 		{
-			return _bookRepository.GetLendingHistory(userId);
+			var books = _bookRepository.GetBooks();
+			var userBooks = _bookRepository.GetUserBooks();
+			var userLendingHistory = from ub in userBooks
+									 join b in books on ub.BookId equals b.BookId
+									 where ub.ApplicationUser.Id == userId
+									 select new BookWithDatesNoStockDto
+									 {
+										 BookId = b.BookId,
+										 Title = b.Title,
+										 Author = b.Author,
+										 BookScore = b.BookScore,
+										 DateBorrowed = ub.DateBorrowed,
+										 DateReturned = ub.DateReturned
+									 };
+			return userLendingHistory.ToList();
 		}
 
 		public Book GetBook(int bookId)

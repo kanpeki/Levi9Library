@@ -1,26 +1,26 @@
 ﻿body {
-    padding-top: 50px;
-    padding-bottom: 20px;
+	padding-top: 50px;
+	padding-bottom: 20px;
 }
 
 /* Set padding to keep content from hitting the edges */
 .body-content {
-    padding-left: 15px;
-    padding-right: 15px;
+	padding-left: 15px;
+	padding-right: 15px;
 }
 
 /* Override the default bootstrap behavior where horizontal description lists 
    will truncate terms that are too long to fit in the left column 
 */
 .dl-horizontal dt {
-    white-space: normal;
+	white-space: normal;
 }
 
 /* Set width on the form input elements since they're 100% wide by default */
 input,
 select,
 textarea {
-    max-width: 280px;
+	max-width: 280px;
 }
 
 
@@ -47,79 +47,3 @@ footer {
 footer p {
 	text-align: center;
 }
-
-/* Modal */
-/*
-.modal-btn {
-	background: #428bca;
-	border: #357ebd solid 1px;
-	border-radius: 3px;
-	color: #fff;
-	display: inline-block;
-	font-size: 14px;
-	padding: 8px 15px;
-	text-decoration: none;
-	text-align: center;
-	min-width: 60px;
-	position: relative;
-	transition: color .1s ease;
-}
-
-.modal-btn:hover {
-	background: #357ebd;
-}
-
-.modal:before {
-	content: "";
-	display: none;
-	background: rgba(0, 0, 0, 0.6);
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	z-index: 10;
-}
-.modal:target:before {
-	display: block;
-}
-.modal:target .modal-dialog {
-	-webkit-transform: translate(0, 0);
-	-ms-transform: translate(0, 0);
-	transform: translate(0, 0);
-	top: 20%;
-}
-.modal-dialog {
-	background: #fefefe;
-	border: #333 solid 1px;
-	border-radius: 5px;
-	margin-left: -200px;
-	position: fixed;
-	left: 50%;
-	top: -100%;
-	z-index: 11;
-	width: 360px;
-	-webkit-transform: translate(0, -500%);
-	-ms-transform: translate(0, -500%);
-	transform: translate(0, -500%);
-	-webkit-transition: -webkit-transform 0.3s ease-out;
-	-moz-transition: -moz-transform 0.3s ease-out;
-	-o-transition: -o-transform 0.3s ease-out;
-	transition: transform 0.3s ease-out;
-}
-
-.modal-body {
-	padding: 20px;
-	padding-top: 40px;
-}
-
-.modal-footer {
-	padding: 10px 20px;
-}
-
-.modal-footer {
-	text-align: right;
-}
-
-*/
-

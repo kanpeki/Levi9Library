@@ -2,6 +2,7 @@
 using Levi9LibraryDomain;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 
 namespace Levi9Library.Infrastructure.Repositories
@@ -30,21 +31,12 @@ namespace Levi9Library.Infrastructure.Repositories
 				.ToList();
 		}
 
-		public IQueryable<BookWithDatesNoStockDto> GetLendingHistory(string userId)
+		public IList<UserBook> GetUserBooks()
 		{
-			var userLendingHistory = from ub in _context.UserBooks
-									 join b in _context.Books on ub.BookId equals b.BookId
-									 where ub.ApplicationUser.Id == userId
-									 select new BookWithDatesNoStockDto
-									 {
-										 BookId = b.BookId,
-										 Title = b.Title,
-										 Author = b.Author,
-										 BookScore = b.BookScore,
-										 DateBorrowed = ub.DateBorrowed,
-										 DateReturned = ub.DateReturned
-									 };
-			return userLendingHistory;
+			return _context
+				.UserBooks
+				.Include(ub => ub.ApplicationUser)
+				.ToList();
 		}
 
 		public Book GetBook(int bookId)

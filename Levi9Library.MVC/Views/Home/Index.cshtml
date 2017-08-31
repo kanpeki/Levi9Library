@@ -42,13 +42,13 @@
 	<thead>
 	<tr>
 		<th>
-			Author
+			@Html.ActionLink("Author", "Index", new { sortOrder = ViewBag.AuthorSort })
 		</th>
 		<th>
-			Title
+			@Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort })
 		</th>
 		<th>
-			Book Score
+			@Html.ActionLink("Book Score", "Index", new { sortOrder = ViewBag.BookScoreSort })
 		</th>
 		<th>@*Borrow*@</th>
 	</tr>

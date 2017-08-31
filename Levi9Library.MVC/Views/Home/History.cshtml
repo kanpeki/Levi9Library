@@ -13,38 +13,63 @@
 <br />
 <br />
 
-<h3>Lending history</h3>
+<h3>Currently borrowing</h3>
+
 <br />
+
+<table id="currentlyBorrowing" class="table table-hover">
+	<thead>
+	<tr>
+		<th>@Html.ActionLink("Author", "History", new { sortOrder = ViewBag.AuthorSort })</th>
+		<th>@Html.ActionLink("Title", "History", new { sortOrder = ViewBag.TitleSort })</th>
+		<th>@Html.ActionLink("Book Score", "History", new { sortOrder = ViewBag.BookScoreSort })</th>
+		<th>@Html.ActionLink("Date Borrowed", "History", new { sortOrder = ViewBag.DateBorrowedSort })</th>
+		<th>@Html.ActionLink("Date Returned", "History", new { sortOrder = ViewBag.DateReturnedSort })</th>
+	</tr>
+	</thead>
+	@foreach (var entry in Model.BorrowedBooks)
+	{
+		if (entry.DateReturned.Equals(StaticValues.DefaultDateTime))
+		{
+			<tr>
+				<td>@Html.DisplayFor(modelItem => entry.Author)</td>
+				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
+				<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
+				<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
+				<td>@Html.ActionLink("Return", "Return", new {bookId = entry.BookId})</td>
+			</tr>
+		}
+	}
+</table>
+
+<br />
+<br />
+
+<h3>Lending history</h3>
+
+<br />
+
 <table id="bookHistory" class="table table-hover">
 	<thead>
 		<tr>
-			<th>Author</th>
-			<th>Title</th>
-			<th>Book Score</th>
-			<th>DateBorrowed</th>
-			<th>DateReturned</th>
+			<th>@Html.ActionLink("Author", "History", new { sortOrder = ViewBag.AuthorSort })</th>
+			<th>@Html.ActionLink("Title", "History", new { sortOrder = ViewBag.TitleSort })</th>
+			<th>@Html.ActionLink("Book Score", "History", new { sortOrder = ViewBag.BookScoreSort })</th>
+			<th>@Html.ActionLink("Date Borrowed", "History", new { sortOrder = ViewBag.DateBorrowedSort })</th>
+			<th>@Html.ActionLink("Date Returned", "History", new { sortOrder = ViewBag.DateReturnedSort })</th>
 		</tr>
 	</thead>
 	@foreach (var entry in Model.BorrowedBooks)
 	{
-		<tr>
-			<td>@Html.DisplayFor(modelItem => entry.Author)</td>
-			<td>@Html.DisplayFor(modelItem => entry.Title)</td>
-			<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
-			<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
-			@if (entry.DateReturned.Equals(StaticValues.DefaultDateTime))
-			{
-				<td>
-					@Html.ActionLink("Return", "Return", new { bookId = entry.BookId })
-				</td>
-			}
-			else
-			{
-				<td>
-					@Html.DisplayFor(modelItem => entry.DateReturned)
-				</td>
-			}
-
-		</tr>
+		if (!entry.DateReturned.Equals(StaticValues.DefaultDateTime))
+		{
+			<tr>
+				<td>@Html.DisplayFor(modelItem => entry.Author)</td>
+				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
+				<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
+				<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
+				<td>@Html.DisplayFor(modelItem => entry.DateReturned)</td>
+			</tr>
+		}
 	}
 </table>
