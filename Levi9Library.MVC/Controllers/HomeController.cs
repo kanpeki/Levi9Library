@@ -4,6 +4,7 @@ using Microsoft.AspNet.Identity;
 using System;
 using System.Linq;
 using System.Web.Mvc;
+using PagedList;
 
 namespace Levi9Library.MVC.Controllers
 {
@@ -19,11 +20,27 @@ namespace Levi9Library.MVC.Controllers
 			_bookService = bookService;
 		}
 
-		public ActionResult Index(string sortOrder)
+		//
+		// Index
+
+		public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
 		{
+			ViewBag.CurrentSort = sortOrder;
 			ViewBag.AuthorSort = String.IsNullOrEmpty(sortOrder) ? "author_desc" : "";
 			ViewBag.TitleSort = sortOrder == "Title" ? "title_desc" : "Title";
 			ViewBag.BookScoreSort = sortOrder == "BookScore" ? "bookscore_desc" : "BookScore";
+
+			if (searchString != null)
+			{
+				page = 1;
+			}
+			else
+			{
+				searchString = currentFilter;
+			}
+
+			ViewBag.CurrentFilter = searchString;
+
 			var user = _userService.GetUser(User.Identity.GetUserId());
 			var availableBooks = _bookService
 								.GetAvailableBooks()
@@ -35,6 +52,11 @@ namespace Levi9Library.MVC.Controllers
 									Stock = b.Stock,
 									BookScore = b.BookScore
 								});
+			if (!String.IsNullOrEmpty(searchString))
+			{
+				availableBooks = availableBooks.Where(ab => ab.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
+														 || ab.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+			}
 			switch (sortOrder)
 			{
 				case "author_desc":
@@ -56,16 +78,22 @@ namespace Levi9Library.MVC.Controllers
 					availableBooks = availableBooks.OrderBy(ab => ab.Author);
 					break;
 			}
+			int pageSize = 3;
+			int pageNumber = page ?? 1;
+
 			var model = new MainViewModel
 			{
-				AvailableBooks = availableBooks.ToList(),
+				AvailableBooks = availableBooks.ToPagedList(pageNumber, pageSize),
 				UserScore = user.UserScore
 			};
 
 			return View(model);
 		}
 
-		public ActionResult History(string sortOrder)
+		//
+		// History
+
+		public ActionResult History(string sortOrder, int? page)
 		{
 			ViewBag.DateReturnedSort = String.IsNullOrEmpty(sortOrder) ? "DateReturned" : "";
 			ViewBag.AuthorSort = sortOrder == "Author" ? "author_desc" : "Author";
@@ -75,57 +103,76 @@ namespace Levi9Library.MVC.Controllers
 
 			var userId = User.Identity.GetUserId();
 			var user = _userService.GetUser(userId);
-			var userBooksQuery = _bookService.GetBorrowedBooks(userId);
-			var userBooks = from bUb in userBooksQuery
-							select new LendingHistoryViewModel
-							{
-								BookId = bUb.BookId,
-								Author = bUb.Author,
-								Title = bUb.Title,
-								BookScore = bUb.BookScore,
-								DateBorrowed = bUb.DateBorrowed,
-								DateReturned = bUb.DateReturned
-							};
+			var userBooks = _bookService.GetBorrowedBooks(userId);
+			var currentlyBorrowing = from bUb in userBooks.Item1
+									 select new LendingHistoryViewModel
+									 {
+										 BookId = bUb.BookId,
+										 Author = bUb.Author,
+										 Title = bUb.Title,
+										 BookScore = bUb.BookScore,
+										 DateBorrowed = bUb.DateBorrowed,
+										 DateReturned = bUb.DateReturned
+									 };
+			var previouslyBorrowed = from bUb in userBooks.Item2
+									 select new LendingHistoryViewModel
+									 {
+										 BookId = bUb.BookId,
+										 Author = bUb.Author,
+										 Title = bUb.Title,
+										 BookScore = bUb.BookScore,
+										 DateBorrowed = bUb.DateBorrowed,
+										 DateReturned = bUb.DateReturned
+									 };
 			switch (sortOrder)
 			{
 				case "DateReturned":
-					userBooks = userBooks.OrderBy(ab => ab.DateReturned);
+					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.DateReturned);
 					break;
 				case "Author":
-					userBooks = userBooks.OrderBy(ab => ab.Author);
+					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.Author);
 					break;
 				case "author_desc":
-					userBooks = userBooks.OrderByDescending(ab => ab.Author);
+					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.Author);
 					break;
 				case "Title":
-					userBooks = userBooks.OrderBy(ab => ab.Title);
+					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.Title);
 					break;
 				case "title_desc":
-					userBooks = userBooks.OrderByDescending(ab => ab.Title);
+					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.Title);
 					break;
 				case "BookScore":
-					userBooks = userBooks.OrderBy(ab => ab.BookScore);
+					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.BookScore);
 					break;
 				case "bookscore_desc":
-					userBooks = userBooks.OrderByDescending(ab => ab.BookScore);
+					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.BookScore);
 					break;
 				case "DateBorrowed":
-					userBooks = userBooks.OrderBy(ab => ab.DateBorrowed);
+					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.DateBorrowed);
 					break;
 				case "dateborrowed_desc":
-					userBooks = userBooks.OrderByDescending(ab => ab.DateBorrowed);
+					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.DateBorrowed);
 					break;
 				default:
-					userBooks = userBooks.OrderByDescending(ab => ab.DateReturned);
+					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.DateReturned);
 					break;
 			}
+
+			int pageSize = 3;
+			int pageNumber = page ?? 1;
+
 			var model = new HistoryViewModel
 			{
-				BorrowedBooks = userBooks.ToList(),
+				CurrentlyBorrowing = currentlyBorrowing.ToList(),
+				BorrowedBooks = previouslyBorrowed.ToPagedList(pageNumber, pageSize),
 				UserScore = user.UserScore
 			};
 			return View(model);
 		}
+
+
+		//
+		// Borrow
 
 		public ActionResult Borrow(int bookId)
 		{
@@ -154,6 +201,9 @@ namespace Levi9Library.MVC.Controllers
 			}
 			return RedirectToAction("Index");
 		}
+
+		//
+		// Return
 
 		public ActionResult Return(int bookId)
 		{
