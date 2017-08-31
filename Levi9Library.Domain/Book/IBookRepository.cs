@@ -8,7 +8,7 @@ namespace Levi9LibraryDomain
 	{
 		IList<Book> GetBooks();
 		IList<Book> GetAvailableBooks();
-		IQueryable<BookWithDates> GetLendingHistory(string userId);
+		IQueryable<BookWithDatesNoStockDto> GetLendingHistory(string userId);
 		Book GetBook(int bookId);
 		void AddBook(Book book);
 		void UpdateBook(Book book);

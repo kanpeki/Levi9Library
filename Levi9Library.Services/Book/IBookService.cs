@@ -9,7 +9,7 @@ namespace Levi9LibraryServices
 	{
 		IList<Book> GetBooks();
 		IList<Book> GetAvailableBooks();
-		IQueryable<BookWithDates> GetBorrowedBooks(string userId);
+		IQueryable<BookWithDatesNoStockDto> GetBorrowedBooks(string userId);
 		Book GetBook(int bookId);
 		void AddBook(string title, string author, int stock, int bookScore);
 		void UpdateBook(int id, string title, string author, int stock, int bookScore);

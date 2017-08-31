@@ -1,4 +1,5 @@
 using System;
+using Levi9Library.Core;
 using Levi9LibraryDomain;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -81,9 +82,9 @@ namespace Levi9Library.Infrastructure.Migrations
 			/*			context.UserBooks.AddOrUpdate(
 							ub => new { ub.Id, ub.BookId, ub.DateBorrowed },
 							new UserBook { Id = um.FindByEmail("test@mailinator.com").Id, BookId = 1, DateBorrowed = new DateTime(2017, 04, 30), DateReturned = new DateTime(2017, 06, 02) },
-							new UserBook { Id = um.FindByEmail("test@mailinator.com").Id, BookId = 2, DateBorrowed = new DateTime(2017, 06, 10), DateReturned = default(DateTime) },
-							new UserBook { Id = um.FindByEmail("test2@mailinator.com").Id, BookId = 1, DateBorrowed = new DateTime(2017, 06, 20), DateReturned = default(DateTime) },
-							new UserBook { Id = um.FindByEmail("test2@mailinator.com").Id, BookId = 3, DateBorrowed = new DateTime(2017, 06, 27), DateReturned = default(DateTime) }
+							new UserBook { Id = um.FindByEmail("test@mailinator.com").Id, BookId = 2, DateBorrowed = new DateTime(2017, 06, 10), DateReturned = StaticValues.DefaultDateTime },
+							new UserBook { Id = um.FindByEmail("test2@mailinator.com").Id, BookId = 1, DateBorrowed = new DateTime(2017, 06, 20), DateReturned = StaticValues.DefaultDateTime },
+							new UserBook { Id = um.FindByEmail("test2@mailinator.com").Id, BookId = 3, DateBorrowed = new DateTime(2017, 06, 27), DateReturned = StaticValues.DefaultDateTime }
 						);*/
 		}
 	}

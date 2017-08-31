@@ -55,7 +55,7 @@
     <Compile Include="ApplicationUser\IUserRepository.cs" />
     <Compile Include="ApplicationUser\User.cs" />
     <Compile Include="Book\Book.cs" />
-    <Compile Include="Book\BookWithDates.cs" />
+    <Compile Include="Book\BookWithDatesNoStockDto.cs" />
     <Compile Include="Book\IBookRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserBook\UserBook.cs" />

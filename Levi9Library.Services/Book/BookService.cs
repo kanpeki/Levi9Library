@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Levi9Library.Core;
+using Levi9LibraryDomain;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Levi9Library.Core;
-using Levi9LibraryDomain;
 
 namespace Levi9LibraryServices
 {
@@ -27,7 +27,7 @@ namespace Levi9LibraryServices
 			return _bookRepository.GetAvailableBooks();
 		}
 
-		public IQueryable<BookWithDates> GetBorrowedBooks(string userId)
+		public IQueryable<BookWithDatesNoStockDto> GetBorrowedBooks(string userId)
 		{
 			return _bookRepository.GetLendingHistory(userId);
 		}

@@ -1,8 +1,7 @@
-﻿using System;
-using Levi9Library.Core;
+﻿using Levi9Library.Core;
 using Levi9LibraryDomain;
+using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 
 namespace Levi9Library.Infrastructure.Repositories
@@ -31,45 +30,17 @@ namespace Levi9Library.Infrastructure.Repositories
 				.ToList();
 		}
 
-		public IQueryable<BookWithDates> GetLendingHistory(string userId)
+		public IQueryable<BookWithDatesNoStockDto> GetLendingHistory(string userId)
 		{
-
-			/*		var userLendingHistory = _context.UserBooks
-											.Join(_context.Books,
-												ub => ub.BookId,
-												b => b.BookId,
-												(ub, b) => new
-												{
-													Book = b,
-													UserBook = ub
-												})
-											.Where(bUb => bUb.UserBook.ApplicationUser.Id.Equals(userId))
-											.Select(bUb => new BookWithDates
-											{
-												Book = new Book
-												{
-													BookId = bUb.Book.BookId,
-													Title = bUb.Book.Title,
-													Author = bUb.Book.Author,
-													Stock = bUb.Book.Stock,
-													BookScore = bUb.Book.BookScore
-												},
-												DateBorrowed = bUb.UserBook.DateBorrowed,
-												DateReturned = bUb.UserBook.DateReturned
-											});*/
 			var userLendingHistory = from ub in _context.UserBooks
 									 join b in _context.Books on ub.BookId equals b.BookId
 									 where ub.ApplicationUser.Id == userId
-									 select new BookWithDates
+									 select new BookWithDatesNoStockDto
 									 {
-										 Book = new Book
-										 {
-											 BookId = b.BookId,
-											 Title = b.Title,
-											 Author = b.Author,
-											 Stock = b.Stock,
-											 BookScore = b.BookScore
-										 },
+										 BookId = b.BookId,
+										 Title = b.Title,
+										 Author = b.Author,
+										 BookScore = b.BookScore,
 										 DateBorrowed = ub.DateBorrowed,
 										 DateReturned = ub.DateReturned
 									 };

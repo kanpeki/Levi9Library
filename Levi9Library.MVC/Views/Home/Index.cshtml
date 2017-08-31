@@ -68,7 +68,7 @@
 			@if(book.Stock > 0)
 			{
 				<td>
-					@Html.ActionLink("Borrow", "Borrow", new {id = book.BookId})
+					@Html.ActionLink("Borrow", "Borrow", new {bookId = book.BookId})
 				</td>
 			}
 			else

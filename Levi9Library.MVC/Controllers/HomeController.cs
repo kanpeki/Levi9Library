@@ -48,10 +48,10 @@ namespace Levi9Library.MVC.Controllers
 			var userBooks = from bUb in userBooksQuery
 							select new LendingHistoryViewModel
 							{
-								BookId = bUb.Book.BookId,
-								Author = bUb.Book.Author,
-								Title = bUb.Book.Title,
-								BookScore = bUb.Book.BookScore,
+								BookId = bUb.BookId,
+								Author = bUb.Author,
+								Title = bUb.Title,
+								BookScore = bUb.BookScore,
 								DateBorrowed = bUb.DateBorrowed,
 								DateReturned = bUb.DateReturned
 							};
@@ -85,8 +85,7 @@ namespace Levi9Library.MVC.Controllers
 				}
 				else if (result.Error.Equals("Already Borrowed"))
 				{
-					TempData["AlreadyBorrowed"] =
-						"You are already borrowing this book. Please return it before requesting another copy.";
+					TempData["AlreadyBorrowed"] = "You are currently borrowing this book.";
 				}
 			}
 			return RedirectToAction("Index");
