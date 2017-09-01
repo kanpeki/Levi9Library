@@ -1,5 +1,4 @@
-﻿using Levi9Library.Core;
-using Levi9LibraryDomain;
+﻿using Levi9LibraryDomain;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -81,7 +80,7 @@ namespace Levi9Library.Infrastructure.Repositories
 		{
 			var bookInList = _context
 				.UserBooks
-				.FirstOrDefault(ub => ub.Id.Equals(userId) && ub.BookId == bookId && ub.DateReturned.Equals(StaticValues.DefaultDateTime));
+				.FirstOrDefault(ub => ub.Id.Equals(userId) && ub.BookId == bookId && ub.DateReturned == null);
 			if (bookInList == null)
 				return false;
 			return true;
@@ -99,7 +98,7 @@ namespace Levi9Library.Infrastructure.Repositories
 		{
 			return _context
 				.UserBooks
-				.FirstOrDefault(ub => ub.Id.Equals(userId) && ub.BookId == bookId && ub.DateReturned.Equals(StaticValues.DefaultDateTime));
+				.FirstOrDefault(ub => ub.Id.Equals(userId) && ub.BookId == bookId && ub.DateReturned == null);
 		}
 	}
 }

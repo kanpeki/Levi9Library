@@ -90,7 +90,7 @@
 
 <br />
 
-Page @(Model.AvailableBooks.PageCount < Model.AvailableBooks.PageNumber ? 0 : Model.AvailableBooks.PageNumber) of @Model.AvailableBooks.PageCount
+<p>Page @(Model.AvailableBooks.PageCount < Model.AvailableBooks.PageNumber ? 0 : Model.AvailableBooks.PageNumber) of @Model.AvailableBooks.PageCount</p>
 
 @Html.PagedListPager(Model.AvailableBooks, page => Url.Action("Index",
 	new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))

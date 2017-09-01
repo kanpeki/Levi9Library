@@ -9,6 +9,6 @@ namespace Levi9Library.Services.DTOs
 		public string Author { get; set; }
 		public int BookScore { get; set; }
 		public DateTime DateBorrowed { get; set; }
-		public DateTime DateReturned { get; set; }
+		public DateTime? DateReturned { get; set; }
 	}
 }

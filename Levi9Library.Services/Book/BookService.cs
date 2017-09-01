@@ -44,8 +44,8 @@ namespace Levi9LibraryServices
 										 DateBorrowed = ub.DateBorrowed,
 										 DateReturned = ub.DateReturned
 									 };
-			var currentlyBorrowing = userLendingHistory.Where(b => b.DateReturned.Equals(StaticValues.DefaultDateTime)).ToList();
-			var previouslyBorrowed = userLendingHistory.Where(b => !b.DateReturned.Equals(StaticValues.DefaultDateTime)).ToList();
+			var currentlyBorrowing = userLendingHistory.Where(b => b.DateReturned == null).ToList();
+			var previouslyBorrowed = userLendingHistory.Where(b => b.DateReturned != null).ToList();
 			return new Tuple<IList<BookWithDatesNoStockDto>, IList<BookWithDatesNoStockDto>>(currentlyBorrowing, previouslyBorrowed);
 		}
 
@@ -102,7 +102,7 @@ namespace Levi9LibraryServices
 				Id = userId,
 				BookId = book.BookId,
 				DateBorrowed = DateTime.UtcNow,
-				DateReturned = StaticValues.DefaultDateTime
+				DateReturned = null
 			};
 			_bookRepository.BorrowBook(borrowedBook);
 			return Result.Ok();
