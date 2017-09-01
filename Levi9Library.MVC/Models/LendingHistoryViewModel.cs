@@ -16,6 +16,6 @@ namespace Levi9Library.MVC.Models
 
 		[Display(Name = "Date Returned")]
 		[DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
-		public DateTime DateReturned { get; set; }
+		public DateTime? DateReturned { get; set; }
 	}
 }

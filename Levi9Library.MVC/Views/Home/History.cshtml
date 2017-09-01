@@ -7,55 +7,76 @@
 
 <h3 class="score-display">Your score: @Model.UserScore</h3>
 
+<br />
+<br />
+
 <h3>Currently borrowing</h3>
 <br />
-<table id="currentlyBorrowing" class="table table-hover">
-	<thead>
-		<tr>
-			<th>Author</th>
-			<th>Title</th>
-			<th>Book Score</th>
-			<th>Date Borrowed</th>
-			<th>Date Returned</th>
-		</tr>
-	</thead>
-	@foreach (var entry in Model.CurrentlyBorrowing)
-	{
-		<tr>
-			<td>@Html.DisplayFor(modelItem => entry.Author)</td>
-			<td>@Html.DisplayFor(modelItem => entry.Title)</td>
-			<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
-			<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
-			<td>@Html.ActionLink("Return", "Return", new { bookId = entry.BookId })</td>
-		</tr>
-	}
-</table>
+
+@if (Model.CurrentlyBorrowing.Count == 0)
+{
+	<p>You are not borrowing any books at the moment. </p>
+}
+else
+{
+	<table id="currentlyBorrowing" class="table table-hover">
+		<thead>
+			<tr>
+				<th>Author</th>
+				<th>Title</th>
+				<th>Book Score</th>
+				<th>Date Borrowed</th>
+				<th>Date Returned</th>
+			</tr>
+		</thead>
+		@foreach (var entry in Model.CurrentlyBorrowing)
+		{
+			<tr>
+				<td>@Html.DisplayFor(modelItem => entry.Author)</td>
+				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
+				<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
+				<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
+				<td>@Html.ActionLink("Return", "Return", new { bookId = entry.BookId })</td>
+			</tr>
+		}
+	</table>
+}
+
+<br />
+<br />
 
 <h3>Lending history</h3>
 <br />
-<table id="bookHistory" class="table table-hover">
-	<thead>
-		<tr>
-			<th>@Html.ActionLink("Author", "History", new { sortOrder = ViewBag.AuthorSort })</th>
-			<th>@Html.ActionLink("Title", "History", new { sortOrder = ViewBag.TitleSort })</th>
-			<th>@Html.ActionLink("Book Score", "History", new { sortOrder = ViewBag.BookScoreSort })</th>
-			<th>@Html.ActionLink("Date Borrowed", "History", new { sortOrder = ViewBag.DateBorrowedSort })</th>
-			<th>@Html.ActionLink("Date Returned", "History", new { sortOrder = ViewBag.DateReturnedSort })</th>
-		</tr>
-	</thead>
-	@foreach (var entry in Model.BorrowedBooks)
-	{
-		<tr>
-			<td>@Html.DisplayFor(modelItem => entry.Author)</td>
-			<td>@Html.DisplayFor(modelItem => entry.Title)</td>
-			<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
-			<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
-			<td>@Html.DisplayFor(modelItem => entry.DateReturned)</td>
-		</tr>
-	}
-</table>
 
-Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount
+@if (Model.BorrowedBooks.Count == 0)
+{
+	<p>Your lending history is empty. </p>
+}
+else
+{
+	<table id="bookHistory" class="table table-hover">
+		<thead>
+			<tr>
+				<th>@Html.ActionLink("Author", "History", new { sortOrder = ViewBag.AuthorSort })</th>
+				<th>@Html.ActionLink("Title", "History", new { sortOrder = ViewBag.TitleSort })</th>
+				<th>@Html.ActionLink("Book Score", "History", new { sortOrder = ViewBag.BookScoreSort })</th>
+				<th>@Html.ActionLink("Date Borrowed", "History", new { sortOrder = ViewBag.DateBorrowedSort })</th>
+				<th>@Html.ActionLink("Date Returned", "History", new { sortOrder = ViewBag.DateReturnedSort })</th>
+			</tr>
+		</thead>
+		@foreach (var entry in Model.BorrowedBooks)
+		{
+			<tr>
+				<td>@Html.DisplayFor(modelItem => entry.Author)</td>
+				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
+				<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
+				<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
+				<td>@Html.DisplayFor(modelItem => entry.DateReturned)</td>
+			</tr>
+		}
+	</table>
 
-@Html.PagedListPager(Model.BorrowedBooks, page => Url.Action("History",
-	new { page, sortOrder = ViewBag.CurrentSort }))
+	<p>Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount</p>
+
+	@Html.PagedListPager(Model.BorrowedBooks, page => Url.Action("History", new { page, sortOrder = ViewBag.CurrentSort }))
+}

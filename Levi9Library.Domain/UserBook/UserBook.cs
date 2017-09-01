@@ -20,7 +20,7 @@ namespace Levi9LibraryDomain
 		[Column(TypeName = "datetime2")]
 		[Display(Name = "Date Returned")]
 		[DisplayFormat(DataFormatString = "{0:dd-MM-yyyy}", ApplyFormatInEditMode = true)]
-		public DateTime DateReturned { get; set; }
+		public DateTime? DateReturned { get; set; }
 
 		public virtual ApplicationUser ApplicationUser { get; set; }
 		public virtual Book Book { get; set; }
