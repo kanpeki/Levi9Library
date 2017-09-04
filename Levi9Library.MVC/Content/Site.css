@@ -7,10 +7,13 @@ body {
 	padding-bottom: 20px;
 }
 
+h3 {
+	padding: 10px 0;
+}
+
 /* Set padding to keep content from hitting the edges */
 .body-content {
-	padding-left: 15px;
-	padding-right: 15px;
+	padding: 0 15px;
 }
 
 /* Override the default bootstrap behavior where horizontal description lists 
@@ -32,10 +35,6 @@ textarea {
 ***** Custom CSS *****
 */
 
-.score-display {
-	float: right;
-	padding: 10px;
-}
 /* Navigation */
 .navbar-inverse, .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
 	background: #1434A0;
@@ -63,4 +62,24 @@ textarea {
 
 footer p {
 	text-align: center;
+	margin: 10px;
+}
+
+
+.float-right {
+	float: right;
+}
+
+.float-right+* {
+	clear: both;
+}
+
+.input-group {
+	max-width: 300px;
+	padding-top: 5px;
+	padding-bottom: 15px;
+}
+
+.input-group input {
+	max-width: none;
 }

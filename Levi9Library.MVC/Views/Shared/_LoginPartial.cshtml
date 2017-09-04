@@ -6,16 +6,25 @@
 	@Html.AntiForgeryToken()
 
 		<ul class="nav navbar-nav navbar-right">
-			<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" 
-				&& ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")">
-				@Html.ActionLink("Home", "Index", "Home")
-			</li>
-			<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "History" ? "active" : "")">
-				@Html.ActionLink("History", "History", "Home")
-			</li>
-			<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" 
-				&& ViewContext.RouteData.Values["Controller"].ToString() == "Manage" ? "active" : "")">
-				@Html.ActionLink("Hello " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new {title = "Manage"})
+			@if (HttpContext.Current.User.IsInRole("Admin"))
+			{
+				<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "History" ? "active" : "")">
+					@Html.ActionLink("Manage", "Manage", "Home")
+				</li>
+			}
+			else
+			{
+				<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index"
+							 && ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")">
+					@Html.ActionLink("Home", "Index", "Home")
+				</li>
+				<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "History" ? "active" : "")">
+					@Html.ActionLink("History", "History", "Home")
+				</li>
+			}
+			<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index"
+			             && ViewContext.RouteData.Values["Controller"].ToString() == "Manage" ? "active" : "")">
+				@Html.ActionLink("Hello " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new {title = "Settings"})
 			</li>
 			<li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
 		</ul>

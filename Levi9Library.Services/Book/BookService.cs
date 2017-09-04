@@ -54,27 +54,27 @@ namespace Levi9LibraryServices
 			return _bookRepository.GetBook(bookId);
 		}
 
-		public void AddBook(string title, string author, int stock, int bookScore)
+		public void AddBook(string title, string author, int bookScore, int stock)
 		{
 			var newBook = new Book
 			{
 				Title = title,
 				Author = author,
-				Stock = stock,
-				BookScore = bookScore
+				BookScore = bookScore,
+				Stock = stock
 			};
 			_bookRepository.AddBook(newBook);
 		}
 
-		public void UpdateBook(int id, string title, string author, int stock, int bookScore)
+		public void UpdateBook(int id, string title, string author, int bookScore, int stock)
 		{
 			var updatedBook = new Book
 			{
 				BookId = id,
 				Title = title,
 				Author = author,
-				Stock = stock,
-				BookScore = bookScore
+				BookScore = bookScore,
+				Stock = stock
 			};
 			_bookRepository.UpdateBook(updatedBook);
 		}

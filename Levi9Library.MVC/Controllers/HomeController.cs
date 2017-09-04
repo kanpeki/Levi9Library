@@ -4,6 +4,8 @@ using Microsoft.AspNet.Identity;
 using System;
 using System.Linq;
 using System.Web.Mvc;
+using AutoMapper;
+using Levi9LibraryDomain;
 using PagedList;
 
 namespace Levi9Library.MVC.Controllers
@@ -14,17 +16,23 @@ namespace Levi9Library.MVC.Controllers
 		private readonly IUserService _userService;
 		private readonly IBookService _bookService;
 
+
 		public HomeController(IUserService userService, IBookService bookService)
 		{
 			_userService = userService;
 			_bookService = bookService;
 		}
 
+
 		//
 		// Index
-
 		public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
 		{
+			if (System.Web.HttpContext.Current.User.IsInRole("Admin"))
+			{
+				return RedirectToAction("Manage", "Home");
+			}
+
 			ViewBag.CurrentSort = sortOrder;
 			ViewBag.AuthorSort = String.IsNullOrEmpty(sortOrder) ? "author_desc" : "";
 			ViewBag.TitleSort = sortOrder == "Title" ? "title_desc" : "Title";
@@ -90,9 +98,50 @@ namespace Levi9Library.MVC.Controllers
 			return View(model);
 		}
 
+
+		//
+		// Manage
+		public ActionResult Manage(string currentFilter, string searchString, int? page)
+		{
+			if (searchString != null)
+			{
+				page = 1;
+			}
+			else
+			{
+				searchString = currentFilter;
+			}
+
+			ViewBag.CurrentFilter = searchString;
+
+			var books = _bookService
+						.GetBooks()
+						.Select(b => new BookViewModel
+						{
+							BookId = b.BookId,
+							Title = b.Title,
+							Author = b.Author,
+							Stock = b.Stock,
+							BookScore = b.BookScore
+						});
+
+			if (!String.IsNullOrEmpty(searchString))
+			{
+				books = books.Where(b => b.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
+															|| b.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+			}
+
+			int pageSize = 3;
+			int pageNumber = page ?? 1;
+
+			var model = books.ToPagedList(pageNumber, pageSize);
+
+			return View(model);
+		}
+
+
 		//
 		// History
-
 		public ActionResult History(string sortOrder, int? page)
 		{
 			ViewBag.DateReturnedSort = String.IsNullOrEmpty(sortOrder) ? "DateReturned" : "";
@@ -172,8 +221,97 @@ namespace Levi9Library.MVC.Controllers
 
 
 		//
-		// Borrow
+		// Book Details
+		public ActionResult Details(int bookId)
+		{
+			var model = _bookService.GetBook(bookId);
+			if (model == null)
+			{
+				return RedirectToAction("Manage");
+			}
+			return View(model);
+		}
 
+
+		//
+		// GET: /Create
+
+		[Authorize(Roles = "Admin")]
+		public ActionResult Create()
+		{
+			return View();
+		}
+
+		// POST: /Create
+		[HttpPost]
+		[Authorize(Roles = "Admin")]
+		[ValidateAntiForgeryToken]
+		public ActionResult Create(BookViewModel newBook)
+		{
+			if (ModelState.IsValid)
+			{
+				_bookService.AddBook(newBook.Title, newBook.Author, newBook.BookScore, newBook.Stock);
+				return RedirectToAction("Manage");
+			}
+
+			return View(newBook);
+		}
+
+
+		//
+		// GET: /Edit/5
+		[Authorize(Roles = "Admin")]
+		public ActionResult Edit(int bookId = 0)
+		{
+			var editedBook = _bookService.GetBook(bookId);
+			if (editedBook == null)
+			{
+				return HttpNotFound();
+			}
+			return View(Mapper.Map<Book, BookViewModel>(editedBook));
+		}
+
+		// POST: /Edit/5
+		[HttpPost]
+		[Authorize(Roles = "Admin")]
+		[ValidateAntiForgeryToken]
+		public ActionResult Edit(BookViewModel editedBook)
+		{
+			if (ModelState.IsValid)
+			{
+				_bookService.UpdateBook(editedBook.BookId, editedBook.Title, editedBook.Author, editedBook.BookScore, editedBook.Stock);
+				return RedirectToAction("Details", new { id = editedBook.BookId });
+			}
+			return View(editedBook);
+		}
+
+
+		// GET: /Restaurant/Delete/5
+		[Authorize(Roles = "Admin")]
+		public ActionResult Delete(int bookId = 0)
+		{
+			var bookToBeDeleted = _bookService.GetBook(bookId);
+			if (bookToBeDeleted == null)
+			{
+				return HttpNotFound();
+			}
+			return View(Mapper.Map<Book, BookViewModel>(bookToBeDeleted));
+		}
+
+
+		// POST: /Restaurant/Delete/5
+		[HttpPost, ActionName("Delete")]
+		[Authorize(Roles = "Admin")]
+		public ActionResult DeleteConfirmed(int bookId)
+		{
+			_bookService.DeleteBook(bookId);
+			TempData["Deleted"] = "The book was successfully deleted.";
+			return RedirectToAction("Manage");
+		}
+
+
+		//
+		// Borrow
 		public ActionResult Borrow(int bookId)
 		{
 			var userId = User.Identity.GetUserId();
@@ -202,9 +340,9 @@ namespace Levi9Library.MVC.Controllers
 			return RedirectToAction("Index");
 		}
 
+
 		//
 		// Return
-
 		public ActionResult Return(int bookId)
 		{
 			var book = _bookService.GetBook(bookId);

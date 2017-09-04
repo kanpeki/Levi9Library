@@ -1,33 +1,43 @@
 ﻿@using PagedList.Mvc
 @using Levi9Library.MVC.Models
 @model MainViewModel
+
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
 @{
 	Layout = "~/Views/Shared/_Layout.cshtml";
 	ViewBag.Title = "Home Page";
 }
 
 
-<h3 class="score-display">Your score: @Model.UserScore</h3>
+<h3 class="float-right">Your score: @Model.UserScore</h3>
 
-<br />
-<br />
+<h3>Books available for lending</h3>
 
 @using (Html.BeginForm())
 {
-	<p>
-		@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { placeholder = "Search by Author or Title" })
-		<input type="submit" value="Search" /></p>
+	<div class="input-group">
+		@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control", placeholder = "Search by Author or Title" })
+		<span class="input-group-btn">
+			<button class="btn btn-default" type="button">
+				<span class="glyphicon glyphicon-search"></span>
+			</button>
+		</span>
+	</div>
 }
 
-<br />
-<br />
+@*<form method="get" action="@Url.Action("Index", "Home", new { currentFilter = ViewBag.CurrentFilter })" class="input-group">
+	<input type="search" class="form-control" placeholder="Search by Author or Title" />
+	<span class="input-group-btn">
+		<button class="btn btn-default" type="button">
+			<span class="glyphicon glyphicon-search"></span>
+		</button>
+	</span>
+</form>*@
 
-<h3>Books available for lending</h3>
-<br />
 
 @if (TempData["AlreadyBorrowed"] != null)
-{
+			{
 	<div class="alert alert-danger alert-dismissable">
 		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
 		@TempData["AlreadyBorrowed"].ToString()
@@ -37,7 +47,7 @@
 }
 
 @if (TempData["Success"] != null)
-{
+		{
 	<div class="alert alert-success alert-dismissable">
 		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
 		@TempData["Success"].ToString()
@@ -46,51 +56,64 @@
 	<br />
 }
 
-
-<table id="availableBooks" class="table table-hover">
-	<thead>
-	<tr>
-		<th>
-			@Html.ActionLink("Author", "Index", new { sortOrder = ViewBag.AuthorSort, currentFilter = ViewBag.CurrentFilter })
-		</th>
-		<th>
-			@Html.ActionLink("Title", "Index", new { sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter })
-		</th>
-		<th>
-			@Html.ActionLink("Book Score", "Index", new { sortOrder = ViewBag.BookScoreSort, currentFilter = ViewBag.CurrentFilter })
-		</th>
-		<th>@*Borrow*@</th>
-	</tr>
-	</thead>
-	@foreach (var book in Model.AvailableBooks)
-	{
+@if (Model.AvailableBooks.Count > 0)
+{
+	<table id="availableBooks" class="table table-hover">
+		<thead>
 		<tr>
-			<td>
-				@Html.DisplayFor(modelItem => book.Author)
-			</td>
-			<td>
-				@Html.DisplayFor(modelItem => book.Title)
-			</td>
-			<td>
-				@Html.DisplayFor(modelItem => book.BookScore)
-			</td>
-			@if(book.Stock > 0)
-			{
-				<td>
-					@Html.ActionLink("Borrow", "Borrow", new {bookId = book.BookId})
-				</td>
-			}
-			else
-			{
-				<td>Not available</td>
-			}
+			<th>
+				@Html.ActionLink("Author", "Index", new {sortOrder = ViewBag.AuthorSort, currentFilter = ViewBag.CurrentFilter})
+			</th>
+			<th>
+				@Html.ActionLink("Title", "Index", new {sortOrder = ViewBag.TitleSort, currentFilter = ViewBag.CurrentFilter})
+			</th>
+			<th>
+				@Html.ActionLink("Book Score", "Index", new {sortOrder = ViewBag.BookScoreSort, currentFilter = ViewBag.CurrentFilter})
+			</th>
+			<th>@*Borrow*@</th>
 		</tr>
+		</thead>
+		@foreach (var book in Model.AvailableBooks)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => book.Author)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => book.Title)
+				</td>
+				<td>
+					@Html.DisplayFor(modelItem => book.BookScore)
+				</td>
+				@if (book.Stock > 0)
+				{
+					<td>
+						@Html.ActionLink("Borrow", "Borrow", new {bookId = book.BookId})
+					</td>
+				}
+				else
+				{
+					<td>Not available</td>
+				}
+			</tr>
+		}
+	</table>
+
+	<br/>
+
+	<p>Page @(Model.AvailableBooks.PageCount < Model.AvailableBooks.PageNumber ? 0 : Model.AvailableBooks.PageNumber) of @Model.AvailableBooks.PageCount</p>
+
+	@Html.PagedListPager(Model.AvailableBooks, page => Url.Action("Index",
+		new { sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, page }))
+}
+else
+{
+	if (String.IsNullOrEmpty(ViewBag.CurrentFilter))
+	{
+		<p>No books are currently available.</p>
 	}
-</table>
-
-<br />
-
-<p>Page @(Model.AvailableBooks.PageCount < Model.AvailableBooks.PageNumber ? 0 : Model.AvailableBooks.PageNumber) of @Model.AvailableBooks.PageCount</p>
-
-@Html.PagedListPager(Model.AvailableBooks, page => Url.Action("Index",
-	new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+	else
+	{
+		<p>No matching books were found.</p>
+	}
+}

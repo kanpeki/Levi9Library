@@ -12,8 +12,8 @@ namespace Levi9LibraryServices
 		IList<Book> GetAvailableBooks();
 		Tuple<IList<BookWithDatesNoStockDto>, IList<BookWithDatesNoStockDto>> GetBorrowedBooks(string userId);
 		Book GetBook(int bookId);
-		void AddBook(string title, string author, int stock, int bookScore);
-		void UpdateBook(int id, string title, string author, int stock, int bookScore);
+		void AddBook(string title, string author, int bookScore, int stock);
+		void UpdateBook(int id, string title, string author, int bookScore, int stock);
 		void DeleteBook(int bookId);
 		Result BorrowBook(string userId, Book book);
 		Result ReturnBook(string userId, Book book);
