@@ -1,5 +1,9 @@
-﻿html, body {
+﻿@import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
+
+html, body {
 	height: 100%;
+	font-family: Roboto, sans-serif;
+	font-weight: 400;
 }
 
 body {
@@ -7,8 +11,27 @@ body {
 	padding-bottom: 20px;
 }
 
+fieldset {
+	padding-bottom: 10px;
+	opacity: .9;
+}
+
+fieldset .btn {
+	margin-top: 10px;
+}
+
+legend {
+	font-size: 110%;
+	padding-top:10px;
+}
+
 h3 {
 	padding: 10px 0;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+	/*Bootstrap 3 override*/
+	-webkit-appearance: searchfield-cancel-button !important;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -82,4 +105,15 @@ footer p {
 
 .input-group input {
 	max-width: none;
+}
+
+.custom-label {
+	font-weight: 700;
+	padding: 5px 0;
+}
+
+.custom-field {
+	display: block;
+	font-weight: 400;
+	padding: 3px 0;
 }

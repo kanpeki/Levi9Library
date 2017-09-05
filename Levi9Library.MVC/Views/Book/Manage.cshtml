@@ -2,21 +2,31 @@
 @using Levi9Library.MVC.Models
 @using PagedList.Mvc
 @model IPagedList<BookViewModel>
+
 <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
 @{
 	Layout = "~/Views/Shared/_Layout.cshtml";
 	ViewBag.Title = "Admin Home";
-	ViewBag.CreateAction = "Url.Action('Create', 'Home')";
 }
 
-<input type="button" class="float-right" value="Add new book" onclick="location.href=@ViewBag.CreateAction" />
 
 <h3>Book Inventory</h3>
+
+@if (TempData["Deleted"] != null)
+{
+	<div class="alert alert-success alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["Deleted"].ToString()
+	</div>
+}
+
+<input type="button" class="btn btn-default float-right" value="Add book" onclick="location.href='@Url.Action("Create", "Book")'" />
 
 @using (Html.BeginForm())
 {
 	<div class="input-group">
-		@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control", placeholder = "Search by Author or Title" })
+		@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control", @type="search", placeholder = "Search by Author or Title" })
 		<span class="input-group-btn">
 			<button class="btn btn-default" type="button">
 				<span class="glyphicon glyphicon-search"></span>
@@ -26,21 +36,17 @@
 }
 
 
-@if (Model.Count == 0)
-{
-	<p>Currently the inventory is empty.</p>
-}
-else
+@if (Model.Count > 0)
 {
 	<table id="bookInventory" class="table table-hover">
 		<thead>
-		<tr>
-			<th>Author</th>
-			<th>Title</th>
-			<th>Book Score</th>
-			<th>Stock</th>
-			<th>@*Actions*@</th>
-		</tr>
+			<tr>
+				<th>Author</th>
+				<th>Title</th>
+				<th>Book Score</th>
+				<th>Stock</th>
+				<th>@*Actions*@</th>
+			</tr>
 		</thead>
 		@foreach (var entry in Model)
 		{
@@ -49,7 +55,7 @@ else
 				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
 				<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
 				<td>@Html.DisplayFor(modelItem => entry.Stock)</td>
-				<td>@Html.ActionLink("Edit", "Edit", new { bookId = entry.BookId }) | @Html.ActionLink("Delete", "Delete", new { bookId = entry.BookId })</td>
+				<td>@Html.ActionLink("Edit", "Edit", new { bookId = entry.BookId })  |  @Html.ActionLink("Delete", "Delete", new { bookId = entry.BookId })</td>
 			</tr>
 		}
 	</table>
@@ -59,4 +65,15 @@ else
 
 	@Html.PagedListPager(Model, page => Url.Action("Manage",
 		new { currentFilter = ViewBag.CurrentFilter, page }))
+}
+else
+{
+	if (String.IsNullOrEmpty(ViewBag.CurrentFilter))
+	{
+		<p> Currently the inventory is empty.</p>
+	}
+	else
+	{
+		<p>No matching books were found.</p>
+	}
 }
