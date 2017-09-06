@@ -1,5 +1,4 @@
 ﻿using Levi9LibraryDomain;
-using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -19,6 +18,14 @@ namespace Levi9Library.Infrastructure.Repositories
 		{
 			return _context
 				.Books
+				.Where(book => !book.IsDisabled)
+				.ToList();
+		}
+
+		public IList<Book> GetBooksIncludingDisabled()
+		{
+			return _context
+				.Books
 				.ToList();
 		}
 
@@ -26,7 +33,7 @@ namespace Levi9Library.Infrastructure.Repositories
 		{
 			return _context
 				.Books
-				.Where(book => book.Stock > 0)
+				.Where(book => !book.IsDisabled && book.BorrowedCount < book.Stock)
 				.ToList();
 		}
 
@@ -45,28 +52,27 @@ namespace Levi9Library.Infrastructure.Repositories
 				.FirstOrDefault(book => book.BookId == bookId);
 		}
 
-		public void AddBook(Book book)
+		public int AddBook(Book book)
 		{
-			_context.Books
-					.Add(book);
+			_context.Books.Add(book);
 			_context.SaveChanges();
+			return book.BookId;
 		}
 
 		public void UpdateBook(Book book)
 		{
-			var bookToBeUpdated = GetBook(book.BookId);
-
-			bookToBeUpdated.Title = book.Title;
-			bookToBeUpdated.Author = book.Author;
-			bookToBeUpdated.Stock = book.Stock;
-			bookToBeUpdated.BookScore = book.BookScore;
+			var bookToUpdate = GetBook(book.BookId);
+			bookToUpdate.Title = book.Title;
+			bookToUpdate.Author = book.Author;
+			bookToUpdate.BookScore = book.BookScore;
+			bookToUpdate.Stock = book.Stock;
 
 			_context.SaveChanges();
 		}
 
 		public void DeleteBook(Book book)
 		{
-			_context.Books.Remove(book);
+			_context.Entry(book).State = EntityState.Modified;
 			_context.SaveChanges();
 		}
 
@@ -78,19 +84,17 @@ namespace Levi9Library.Infrastructure.Repositories
 
 		public bool IsCurrentlyBorrowed(string userId, int bookId)
 		{
-			var bookInList = _context
-				.UserBooks
-				.FirstOrDefault(ub => ub.Id.Equals(userId) && ub.BookId == bookId && ub.DateReturned == null);
-			if (bookInList == null)
+			var borrowedBook = GetBookToBeReturned(userId, bookId);
+			if (borrowedBook == null)
 				return false;
 			return true;
 		}
 
 		public void ReturnBook(ApplicationUser user, Book book, UserBook bookToBeReturned)
 		{
-			bookToBeReturned.DateReturned = DateTime.UtcNow;
-			book.Stock++;
-			user.UserScore += book.BookScore;
+			_context.Entry(user).State = EntityState.Modified;
+			_context.Entry(book).State = EntityState.Modified;
+			_context.Entry(bookToBeReturned).State = EntityState.Modified;
 			_context.SaveChanges();
 		}
 

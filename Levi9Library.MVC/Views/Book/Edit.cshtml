@@ -7,6 +7,16 @@
 
 <h3>Edit</h3>
 
+@*@if((ViewBag.Stock != null && ViewBag.Stock < Model.BorrowedCount) || TempData["StockLessThanBorrowed"] != null)*@
+@if(TempData["StockLessThanBorrowed"] != null)
+{
+	<div class="alert alert-danger alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@*Stock can't be less than the number of books currently borrowed: @Model.BorrowedCount.*@
+		@TempData["StockLessThanBorrowed"].ToString()
+	</div>
+} 
+
 @using (Html.BeginForm())
 {
 	@Html.AntiForgeryToken()

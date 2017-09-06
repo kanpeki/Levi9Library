@@ -28,16 +28,6 @@
 		</span>
 	</div>
 }
-@*
-<div class="input-group">
-	<input id="searchBox" type="search" class="form-control" placeholder="Search by Author or Title" />
-	<span class="input-group-btn">
-		<button class="btn btn-default" type="button" onclick="location.href='@Url.Action("Index", new { sortOrder = ViewBag.CurrentSort, currentFilter =$('#searchBox').value })'">
-			<span class="glyphicon glyphicon-search"></span>
-		</button>
-	</span>
-</div>*@
-
 
 @if (TempData["AlreadyBorrowed"] != null)
 {
@@ -45,8 +35,6 @@
 		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
 		@TempData["AlreadyBorrowed"].ToString()
 	</div>
-
-	<br />
 }
 
 @if (TempData["Success"] != null)
@@ -55,8 +43,6 @@
 		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
 		@TempData["Success"].ToString()
 	</div>
-
-	<br />
 }
 
 @if (Model.AvailableBooks.Count > 0)
@@ -88,16 +74,9 @@
 				<td>
 					@Html.DisplayFor(modelItem => book.BookScore)
 				</td>
-				@if (book.Stock > 0)
-				{
-					<td>
-						@Html.ActionLink("Borrow", "Borrow", new { bookId = book.BookId })
-					</td>
-				}
-				else
-				{
-					<td>Not available</td>
-				}
+				<td>
+					@Html.ActionLink("Borrow", "Borrow", new { bookId = book.BookId, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString })
+				</td>
 			</tr>
 		}
 	</table>
@@ -120,9 +99,3 @@ else
 		<p>No matching books were found.</p>
 	}
 }
-
-@*
-<script type="text/javascript">
-	$('#availableSearch').bind('click', function (e) { if (this.value == "")  });
-</script>
-*@

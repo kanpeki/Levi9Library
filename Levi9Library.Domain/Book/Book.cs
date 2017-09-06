@@ -21,11 +21,15 @@ namespace Levi9LibraryDomain
 		public string Author { get; set; }
 
 		[Required]
-		public int Stock { get; set; }
-
-		[Required]
 		[Display(Name = "Book Score")]
 		public int BookScore { get; set; }
+
+		[Required]
+		public int Stock { get; set; }
+
+		public int BorrowedCount { get; set; } = 0;
+
+		public bool IsDisabled { get; set; } = false;
 
 		public virtual ICollection<UserBook> UserBooks { get; set; }
 	}

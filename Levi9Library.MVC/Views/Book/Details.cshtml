@@ -5,6 +5,16 @@
 	ViewBag.Title = "Book Details";
 }
 
+@if (TempData["Success"] != null)
+{
+	<br />
+
+	<div class="alert alert-success alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["Success"].ToString()
+	</div>
+}
+
 <h3>Book Details</h3>
 
 <fieldset>

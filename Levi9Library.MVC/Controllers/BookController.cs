@@ -7,6 +7,7 @@ using PagedList;
 using System;
 using System.Linq;
 using System.Web.Mvc;
+using Microsoft.Ajax.Utilities;
 
 namespace Levi9Library.MVC.Controllers
 {
@@ -33,22 +34,6 @@ namespace Levi9Library.MVC.Controllers
 				return RedirectToAction("Manage", "Book");
 			}
 
-			ViewBag.CurrentSort = sortOrder;
-			ViewBag.AuthorSort = String.IsNullOrEmpty(sortOrder) ? "author_desc" : "";
-			ViewBag.TitleSort = sortOrder == "Title" ? "title_desc" : "Title";
-			ViewBag.BookScoreSort = sortOrder == "BookScore" ? "bookscore_desc" : "BookScore";
-
-			if (searchString != null)
-			{
-				page = 1;
-			}
-			else
-			{
-				searchString = currentFilter;
-			}
-
-			ViewBag.CurrentFilter = searchString;
-
 			var user = _userService.GetUser(User.Identity.GetUserId());
 			var availableBooks = _bookService
 								.GetAvailableBooks()
@@ -60,11 +45,30 @@ namespace Levi9Library.MVC.Controllers
 									Stock = b.Stock,
 									BookScore = b.BookScore
 								});
+
+			if (searchString != null)
+			{
+				page = 1;
+			}
+			else
+			{
+				searchString = currentFilter;
+			}
+
+			ViewBag.SearchString = searchString;
+			ViewBag.CurrentFilter = searchString;
+
 			if (!String.IsNullOrEmpty(searchString))
 			{
 				availableBooks = availableBooks.Where(ab => ab.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
 														 || ab.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
 			}
+
+			ViewBag.CurrentSort = sortOrder;
+			ViewBag.AuthorSort = String.IsNullOrEmpty(sortOrder) ? "author_desc" : "";
+			ViewBag.TitleSort = sortOrder == "Title" ? "title_desc" : "Title";
+			ViewBag.BookScoreSort = sortOrder == "BookScore" ? "bookscore_desc" : "BookScore";
+
 			switch (sortOrder)
 			{
 				case "author_desc":
@@ -86,6 +90,7 @@ namespace Levi9Library.MVC.Controllers
 					availableBooks = availableBooks.OrderBy(ab => ab.Author);
 					break;
 			}
+
 			int pageSize = 3;
 			int pageNumber = page ?? 1;
 
@@ -249,8 +254,9 @@ namespace Levi9Library.MVC.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				_bookService.AddBook(newBook.Title, newBook.Author, newBook.BookScore, newBook.Stock);
-				return RedirectToAction("Manage");
+				var newBookId = _bookService.AddBook(newBook.Title, newBook.Author, newBook.BookScore, newBook.Stock);
+				TempData["Success"] = "The book was succesfully added.";
+				return RedirectToAction("Details", new { bookId = newBookId });
 			}
 
 			return View(newBook);
@@ -278,8 +284,15 @@ namespace Levi9Library.MVC.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				_bookService.UpdateBook(editedBook.BookId, editedBook.Title, editedBook.Author, editedBook.BookScore, editedBook.Stock);
-				return RedirectToAction("Details", new { bookId = editedBook.BookId });
+				var result = _bookService.UpdateBook(editedBook.BookId, editedBook.Title, editedBook.Author, editedBook.BookScore, editedBook.Stock, editedBook.BorrowedCount);
+				if (result.IsSuccess)
+				{
+					return RedirectToAction("Details", new { bookId = editedBook.BookId });
+				}
+				if (result.IsFailure)
+				{
+					TempData["StockLessThanBorrowed"] = result.Error;
+				}
 			}
 			return View(editedBook);
 		}
@@ -311,7 +324,7 @@ namespace Levi9Library.MVC.Controllers
 
 		//
 		// Borrow
-		public ActionResult Borrow(int bookId)
+		public ActionResult Borrow(int bookId, string sortOrder, string currentFilter, string searchString)
 		{
 			var userId = User.Identity.GetUserId();
 			var user = _userService.GetUser(userId);
@@ -336,7 +349,12 @@ namespace Levi9Library.MVC.Controllers
 					TempData["AlreadyBorrowed"] = "You are currently borrowing this book.";
 				}
 			}
-			return RedirectToAction("Index");
+
+			ViewBag.SortOrder = sortOrder;
+			ViewBag.CurrentFilter = currentFilter;
+			ViewBag.SearchString = searchString;
+
+			return RedirectToAction("Index", new { sortOrder = ViewBag.SortOrder, currentFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString });
 		}
 
 

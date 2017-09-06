@@ -1,6 +1,7 @@
 ﻿using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using Levi9Library.Core;
 
 namespace Levi9Library.MVC
 {
@@ -15,6 +16,7 @@ namespace Levi9Library.MVC
 
 			//added
 			UnityConfig.RegisterComponents();
+			ModelBinders.Binders.DefaultBinder = new TrimModelBinder();
 		}
 	}
 }
