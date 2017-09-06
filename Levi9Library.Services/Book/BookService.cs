@@ -1,9 +1,9 @@
 ﻿using Levi9Library.Core;
+using Levi9Library.Services.DTOs;
 using Levi9LibraryDomain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Levi9Library.Services.DTOs;
 
 namespace Levi9LibraryServices
 {
@@ -30,7 +30,7 @@ namespace Levi9LibraryServices
 
 		public Tuple<IList<BookWithDatesNoStockDto>, IList<BookWithDatesNoStockDto>> GetBorrowedBooks(string userId)
 		{
-			var books = _bookRepository.GetBooks();
+			var books = _bookRepository.GetBooksIncludingDisabled();
 			var userBooks = _bookRepository.GetUserBooks();
 			var userLendingHistory = from ub in userBooks
 									 join b in books on ub.BookId equals b.BookId
@@ -54,40 +54,49 @@ namespace Levi9LibraryServices
 			return _bookRepository.GetBook(bookId);
 		}
 
-		public void AddBook(string title, string author, int stock, int bookScore)
+		public int AddBook(string title, string author, int bookScore, int stock)
 		{
 			var newBook = new Book
 			{
 				Title = title,
 				Author = author,
-				Stock = stock,
-				BookScore = bookScore
+				BookScore = bookScore,
+				Stock = stock
 			};
-			_bookRepository.AddBook(newBook);
+			var newBookId = _bookRepository.AddBook(newBook);
+			return newBookId;
 		}
 
-		public void UpdateBook(int id, string title, string author, int stock, int bookScore)
+		public Result UpdateBook(int bookId, string title, string author, int bookScore, int stock, int borrowedCount)
 		{
+			var bookToUpdate = _bookRepository.GetBook(bookId);
+			if (stock < bookToUpdate.BorrowedCount)
+			{
+				return Result.Fail($"Stock can't be less than the number of books currently borrowed: {bookToUpdate.BorrowedCount}.");
+			}
 			var updatedBook = new Book
 			{
-				BookId = id,
+				BookId = bookId,
 				Title = title,
 				Author = author,
+				BookScore = bookScore,
 				Stock = stock,
-				BookScore = bookScore
+				BorrowedCount = borrowedCount
 			};
 			_bookRepository.UpdateBook(updatedBook);
+			return Result.Ok();
 		}
 
 		public void DeleteBook(int bookId)
 		{
-			var bookToBeDeleted = GetBook(bookId);
-			_bookRepository.DeleteBook(bookToBeDeleted);
+			var bookToDelete = GetBook(bookId);
+			bookToDelete.IsDisabled = true;
+			_bookRepository.DeleteBook(bookToDelete);
 		}
 
 		public Result BorrowBook(string userId, Book book)
 		{
-			if (book.Stock <= 0)
+			if (!(book.BorrowedCount < book.Stock) || book.IsDisabled)
 			{
 				return Result.Fail("Not Available");
 			}
@@ -96,7 +105,7 @@ namespace Levi9LibraryServices
 			{
 				return Result.Fail("Already Borrowed");
 			}
-			book.Stock--;
+			book.BorrowedCount++;
 			var borrowedBook = new UserBook
 			{
 				Id = userId,
@@ -120,6 +129,9 @@ namespace Levi9LibraryServices
 			{
 				return Result.Fail("Nothing To Return");
 			}
+			book.BorrowedCount--;
+			user.UserScore += book.BookScore;
+			returnedBook.DateReturned = DateTime.UtcNow;
 			_bookRepository.ReturnBook(user, book, returnedBook);
 			return Result.Ok();
 		}

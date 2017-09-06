@@ -1,11 +1,12 @@
 ﻿@using PagedList.Mvc
 @using Levi9Library.MVC.Models
 @model HistoryViewModel
+
 @{
 	ViewBag.Title = "History";
 }
 
-<h3 class="score-display">Your score: @Model.UserScore</h3>
+<h3 class="float-right">Your score: @Model.UserScore</h3>
 
 <br />
 <br />
@@ -78,5 +79,5 @@ else
 
 	<p>Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount</p>
 
-	@Html.PagedListPager(Model.BorrowedBooks, page => Url.Action("History", new { page, sortOrder = ViewBag.CurrentSort }))
+	@Html.PagedListPager(Model.BorrowedBooks, page => Url.Action("History", new { sortOrder = ViewBag.CurrentSort, page }))
 }
