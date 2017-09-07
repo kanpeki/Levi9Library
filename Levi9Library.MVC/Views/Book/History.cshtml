@@ -3,16 +3,20 @@
 @model HistoryViewModel
 
 @{
+	Layout = "~/Views/Shared/_Layout.cshtml";
 	ViewBag.Title = "History";
 }
 
-<h3 class="float-right">Your score: @Model.UserScore</h3>
-
-<br />
-<br />
+<p class="float-right">
+	Your score: @Model.UserScore
+</p>
+<p class="float-right"
+   data-toggle="tooltip"
+   title="This is the number of times you were late returning a book. After @ViewBag.Times times you will be banned for @ViewBag.Duration.">
+	Late count: @Model.OverdueCount
+</p>
 
 <h3>Currently borrowing</h3>
-<br />
 
 @if (Model.CurrentlyBorrowing.Count == 0)
 {
@@ -43,11 +47,7 @@ else
 	</table>
 }
 
-<br />
-<br />
-
 <h3>Lending history</h3>
-<br />
 
 @if (Model.BorrowedBooks.Count == 0)
 {
@@ -77,7 +77,16 @@ else
 		}
 	</table>
 
-	<p>Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount</p>
+	<p class="page-count">Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount</p>
 
 	@Html.PagedListPager(Model.BorrowedBooks, page => Url.Action("History", new { sortOrder = ViewBag.CurrentSort, page }))
 }
+
+@*<script>
+	$('#bannedAlert').on('click', function() {
+		window.location.reload();
+	});
+	$('#bannedAlert a').on('close', function() {
+			window.location.reload();
+		});
+</script>*@

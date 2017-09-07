@@ -13,6 +13,9 @@ namespace Levi9LibraryDomain
 	{
 		// custom property with default value
 		public int UserScore { get; set; } = 0;
+		public int OverdueCount { get; set; } = 0;
+		public bool IsBanned { get; set; } = false;
+		public DateTime? LastBannedDate { get; set; }
 		public virtual ICollection<UserBook> UserBooks { get; set; }
 
 
@@ -20,8 +23,12 @@ namespace Levi9LibraryDomain
 		{
 			// Note the authenticationType must match the one defined in CookieAuthenticationOptions.AuthenticationType
 			var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
+
 			// Add custom user claims here
 			userIdentity.AddClaim(new Claim("UserScore", UserScore.ToString()));
+			userIdentity.AddClaim(new Claim("OverdueCount", UserScore.ToString()));
+			userIdentity.AddClaim(new Claim("IsBanned", IsBanned.ToString()));
+			userIdentity.AddClaim(new Claim("LastBannedDate", IsBanned.ToString()));
 
 			return userIdentity;
 		}
@@ -37,6 +44,36 @@ namespace Levi9LibraryDomain
 			}
 			var ci = identity as ClaimsIdentity;
 			return ci?.FindFirstValue("UserScore");
+		}
+
+		public static string GetOverdueCount(this IIdentity identity)
+		{
+			if (identity == null)
+			{
+				throw new ArgumentNullException("identity");
+			}
+			var ci = identity as ClaimsIdentity;
+			return ci?.FindFirstValue("OverdueCount");
+		}
+
+		public static string GetIsBanned(this IIdentity identity)
+		{
+			if (identity == null)
+			{
+				throw new ArgumentNullException("identity");
+			}
+			var ci = identity as ClaimsIdentity;
+			return ci?.FindFirstValue("IsBanned");
+		}
+
+		public static string GetLastBannedDate(this IIdentity identity)
+		{
+			if (identity == null)
+			{
+				throw new ArgumentNullException("identity");
+			}
+			var ci = identity as ClaimsIdentity;
+			return ci?.FindFirstValue("LastBannedDate");
 		}
 	}
 }
