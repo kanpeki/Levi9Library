@@ -100,6 +100,20 @@ namespace Levi9LibraryServices
 			{
 				return Result.Fail("Not Available");
 			}
+			var user = _userService.GetUser(userId);
+			if (user.IsBanned)
+			{
+				if (DateTime.UtcNow - user.LastBannedDate < LibraryManager.BanDuration)
+				{
+					return Result.Fail("Still Banned");
+				}
+				user.IsBanned = false;
+				user.OverdueCount = 0;
+			}
+			if (GetBorrowedBooks(userId).Item1.Count >= LibraryManager.MaxBooksPerUser)
+			{
+				return Result.Fail("Over Limit");
+			}
 			var isBorrowed = _bookRepository.IsCurrentlyBorrowed(userId, book.BookId);
 			if (isBorrowed)
 			{
@@ -127,11 +141,22 @@ namespace Levi9LibraryServices
 			var returnedBook = _bookRepository.GetBookToBeReturned(userId, book.BookId);
 			if (returnedBook == null)
 			{
-				return Result.Fail("Nothing To Return");
+				return Result.Fail("Nothing to return");
 			}
 			book.BorrowedCount--;
 			user.UserScore += book.BookScore;
 			returnedBook.DateReturned = DateTime.UtcNow;
+			if (returnedBook.DateReturned - returnedBook.DateBorrowed > LibraryManager.BorrowDuration)
+			{
+				// OverdueCount will be larger than MaxOverDueCount when a user still has unreturned books the moment he is banned
+				// in this case his ban might be longer than the BanDuration, as the ban reinstates itself each time a late book is returned
+				user.OverdueCount++;
+			}
+			if (user.OverdueCount >= LibraryManager.MaxOverdueCount)
+			{
+				user.IsBanned = true;
+				user.LastBannedDate = DateTime.UtcNow;
+			}
 			_bookRepository.ReturnBook(user, book, returnedBook);
 			return Result.Ok();
 		}

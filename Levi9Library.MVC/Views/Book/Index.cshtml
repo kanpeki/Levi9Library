@@ -2,23 +2,64 @@
 @using Levi9Library.MVC.Models
 @model MainViewModel
 
-<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
-
 @{
 	Layout = "~/Views/Shared/_Layout.cshtml";
 	ViewBag.Title = "Home Page";
 }
 
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
-<h3 class="float-right">Your score: @Model.UserScore</h3>
+<p class="float-right">Your score: @Model.UserScore</p>
+
+@if (TempData["StillBanned"] != null)
+{
+	<div class="alert alert-danger alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["StillBanned"]
+	</div>
+}
 
 <h3>Books available for lending</h3>
+
+@if (TempData["AlreadyBorrowed"] != null)
+{
+	<div class="alert alert-danger alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["AlreadyBorrowed"]
+		@{
+			var objectArray = (object[])TempData["BorrowedBook"];
+		}
+		@objectArray[0] by @objectArray[1]
+	</div>
+}
+			
+@if (TempData["OverLimit"] != null)
+{
+	<div class="alert alert-danger alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["OverLimit"]
+	</div>
+}
+
+@if (TempData["Success"] != null)
+{
+	<div class="alert alert-success alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["Success"]
+		@{
+			var objectArray = (object[])TempData["BorrowedBook"];
+		}
+		@objectArray[0] by @objectArray[1]
+	</div>
+}
 
 @using (Html.BeginForm())
 {
 	<div class="input-group">
 		@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new {
-																			   @id = "availableSearch", @class = "form-control", /*@type="search",*/
+																			   /*@id = "availableSearch",*/
+																			   @class = "form-control", 
+																			   /*@type="search",*/
 																			   placeholder = "Search by Author or Title"
 																		   })
 		<span class="input-group-btn">
@@ -29,21 +70,6 @@
 	</div>
 }
 
-@if (TempData["AlreadyBorrowed"] != null)
-{
-	<div class="alert alert-danger alert-dismissable">
-		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
-		@TempData["AlreadyBorrowed"].ToString()
-	</div>
-}
-
-@if (TempData["Success"] != null)
-{
-	<div class="alert alert-success alert-dismissable">
-		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
-		@TempData["Success"].ToString()
-	</div>
-}
 
 @if (Model.AvailableBooks.Count > 0)
 {
@@ -75,18 +101,15 @@
 					@Html.DisplayFor(modelItem => book.BookScore)
 				</td>
 				<td>
-					@Html.ActionLink("Borrow", "Borrow", new { bookId = book.BookId, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString })
+					@Html.ActionLink("Borrow", "Borrow", new { bookId = book.BookId })
 				</td>
 			</tr>
 		}
 	</table>
 
-	<br />
+	<p class="page-count">Page @(Model.AvailableBooks.PageCount < Model.AvailableBooks.PageNumber ? 0 : Model.AvailableBooks.PageNumber) of @Model.AvailableBooks.PageCount</p>
 
-	<p>Page @(Model.AvailableBooks.PageCount < Model.AvailableBooks.PageNumber ? 0 : Model.AvailableBooks.PageNumber) of @Model.AvailableBooks.PageCount</p>
-
-	@Html.PagedListPager(Model.AvailableBooks, page => Url.Action("Index",
-		new { sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, page }))
+	@Html.PagedListPager(Model.AvailableBooks, page => Url.Action("Index", new { sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, page }))
 }
 else
 {

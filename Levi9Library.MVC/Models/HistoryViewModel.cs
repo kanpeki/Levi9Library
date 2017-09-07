@@ -8,6 +8,6 @@ namespace Levi9Library.MVC.Models
 		public IList<LendingHistoryViewModel> CurrentlyBorrowing;
 		public IPagedList<LendingHistoryViewModel> BorrowedBooks;
 		public int UserScore;
-
+		public int OverdueCount;
 	}
 }

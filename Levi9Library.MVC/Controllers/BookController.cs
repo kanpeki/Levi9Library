@@ -1,4 +1,5 @@
-﻿using Levi9Library.MVC.Models;
+﻿using Levi9Library.Core;
+using Levi9Library.MVC.Models;
 using Levi9LibraryDomain;
 using Levi9LibraryServices;
 using Microsoft.AspNet.Identity;
@@ -7,7 +8,6 @@ using PagedList;
 using System;
 using System.Linq;
 using System.Web.Mvc;
-using Microsoft.Ajax.Utilities;
 
 namespace Levi9Library.MVC.Controllers
 {
@@ -36,15 +36,15 @@ namespace Levi9Library.MVC.Controllers
 
 			var user = _userService.GetUser(User.Identity.GetUserId());
 			var availableBooks = _bookService
-								.GetAvailableBooks()
-								.Select(b => new BookViewModel
-								{
-									BookId = b.BookId,
-									Title = b.Title,
-									Author = b.Author,
-									Stock = b.Stock,
-									BookScore = b.BookScore
-								});
+				.GetAvailableBooks()
+				.Select(b => new BookViewModel
+				{
+					BookId = b.BookId,
+					Title = b.Title,
+					Author = b.Author,
+					Stock = b.Stock,
+					BookScore = b.BookScore
+				});
 
 			if (searchString != null)
 			{
@@ -60,8 +60,8 @@ namespace Levi9Library.MVC.Controllers
 
 			if (!String.IsNullOrEmpty(searchString))
 			{
-				availableBooks = availableBooks.Where(ab => ab.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
-														 || ab.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+				availableBooks = availableBooks.Where(ab => ab.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 ||
+															ab.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
 			}
 
 			ViewBag.CurrentSort = sortOrder;
@@ -120,20 +120,20 @@ namespace Levi9Library.MVC.Controllers
 			ViewBag.CurrentFilter = searchString;
 
 			var books = _bookService
-						.GetBooks()
-						.Select(b => new BookViewModel
-						{
-							BookId = b.BookId,
-							Title = b.Title,
-							Author = b.Author,
-							Stock = b.Stock,
-							BookScore = b.BookScore
-						});
+				.GetBooks()
+				.Select(b => new BookViewModel
+				{
+					BookId = b.BookId,
+					Title = b.Title,
+					Author = b.Author,
+					Stock = b.Stock,
+					BookScore = b.BookScore
+				});
 
 			if (!String.IsNullOrEmpty(searchString))
 			{
 				books = books.Where(b => b.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
-															|| b.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+										 || b.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
 			}
 
 			int pageSize = 3;
@@ -215,11 +215,15 @@ namespace Levi9Library.MVC.Controllers
 			int pageSize = 3;
 			int pageNumber = page ?? 1;
 
+			ViewBag.Times = LibraryManager.MaxOverdueCount;
+			ViewBag.Duration = GetBanDurationDisplay(LibraryManager.BanDuration);
+
 			var model = new HistoryViewModel
 			{
 				CurrentlyBorrowing = currentlyBorrowing.ToList(),
 				BorrowedBooks = previouslyBorrowed.ToPagedList(pageNumber, pageSize),
-				UserScore = user.UserScore
+				UserScore = user.UserScore,
+				OverdueCount = user.OverdueCount
 			};
 			return View(model);
 		}
@@ -284,7 +288,8 @@ namespace Levi9Library.MVC.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				var result = _bookService.UpdateBook(editedBook.BookId, editedBook.Title, editedBook.Author, editedBook.BookScore, editedBook.Stock, editedBook.BorrowedCount);
+				var result = _bookService.UpdateBook(editedBook.BookId, editedBook.Title, editedBook.Author, editedBook.BookScore,
+					editedBook.Stock, editedBook.BorrowedCount);
 				if (result.IsSuccess)
 				{
 					return RedirectToAction("Details", new { bookId = editedBook.BookId });
@@ -324,7 +329,7 @@ namespace Levi9Library.MVC.Controllers
 
 		//
 		// Borrow
-		public ActionResult Borrow(int bookId, string sortOrder, string currentFilter, string searchString)
+		public ActionResult Borrow(int bookId)
 		{
 			var userId = User.Identity.GetUserId();
 			var user = _userService.GetUser(userId);
@@ -336,7 +341,8 @@ namespace Levi9Library.MVC.Controllers
 			var result = _bookService.BorrowBook(userId, book);
 			if (result.IsSuccess)
 			{
-				TempData["Success"] = "Hurray! I knew Levi9-ers were starving for knowledge :)";
+				TempData["Success"] = "You successfully borrowed ";
+				TempData["BorrowedBook"] = new object[] { book.Title, book.Author };
 			}
 			else if (result.IsFailure)
 			{
@@ -346,15 +352,22 @@ namespace Levi9Library.MVC.Controllers
 				}
 				else if (result.Error.Equals("Already Borrowed"))
 				{
-					TempData["AlreadyBorrowed"] = "You are currently borrowing this book.";
+					TempData["AlreadyBorrowed"] = "You are already borrowing ";
+					TempData["BorrowedBook"] = new object[] { book.Title, book.Author };
+				}
+				else if (result.Error.Equals("Still Banned") && user.LastBannedDate.HasValue)
+				{
+					TempData["StillBanned"] = $"You were late {LibraryManager.MaxOverdueCount} times.\n You are banned for "
+											+ GetBanDurationDisplay(user.LastBannedDate.Value + LibraryManager.BanDuration - DateTime.UtcNow)
+											+ ".\n You can only return books during this time.";
+				}
+				else if (result.Error.Equals("Over Limit"))
+				{
+					TempData["OverLimit"] = $"You are already borrowing the maximum number of books: {LibraryManager.MaxBooksPerUser}.";
 				}
 			}
 
-			ViewBag.SortOrder = sortOrder;
-			ViewBag.CurrentFilter = currentFilter;
-			ViewBag.SearchString = searchString;
-
-			return RedirectToAction("Index", new { sortOrder = ViewBag.SortOrder, currentFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString });
+			return RedirectToAction("Index");
 		}
 
 
@@ -369,7 +382,14 @@ namespace Levi9Library.MVC.Controllers
 			{
 				return HttpNotFound();
 			}
+
 			return RedirectToAction("History");
+		}
+
+		private string GetBanDurationDisplay(TimeSpan duration)
+		{
+			string display = $"{duration.Days} days and {duration:hh\\:mm\\:ss}";
+			return display;
 		}
 	}
 }

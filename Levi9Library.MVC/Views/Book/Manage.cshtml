@@ -2,14 +2,12 @@
 @using Levi9Library.MVC.Models
 @using PagedList.Mvc
 @model IPagedList<BookViewModel>
-
-<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
-
 @{
 	Layout = "~/Views/Shared/_Layout.cshtml";
 	ViewBag.Title = "Admin Home";
 }
 
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 
 <h3>Book Inventory</h3>
 
@@ -70,7 +68,7 @@ else
 {
 	if (String.IsNullOrEmpty(ViewBag.CurrentFilter))
 	{
-		<p> Currently the inventory is empty.</p>
+		<h4> Currently the inventory is empty.</h4>
 	}
 	else
 	{

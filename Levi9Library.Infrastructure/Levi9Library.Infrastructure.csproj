@@ -77,6 +77,10 @@
     <Compile Include="Migrations\201709060733449_ReplacedAvailableCopiesWithBorrowedCount.Designer.cs">
       <DependentUpon>201709060733449_ReplacedAvailableCopiesWithBorrowedCount.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201709070552205_OverdueCount-IsBanned-LastBannedDate.cs" />
+    <Compile Include="Migrations\201709070552205_OverdueCount-IsBanned-LastBannedDate.Designer.cs">
+      <DependentUpon>201709070552205_OverdueCount-IsBanned-LastBannedDate.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\BookRepository.cs" />
@@ -111,6 +115,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201709060733449_ReplacedAvailableCopiesWithBorrowedCount.resx">
       <DependentUpon>201709060733449_ReplacedAvailableCopiesWithBorrowedCount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709070552205_OverdueCount-IsBanned-LastBannedDate.resx">
+      <DependentUpon>201709070552205_OverdueCount-IsBanned-LastBannedDate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
