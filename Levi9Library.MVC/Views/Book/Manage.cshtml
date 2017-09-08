@@ -1,7 +1,6 @@
-﻿@using PagedList
-@using Levi9Library.MVC.Models
+﻿@using Levi9Library.MVC.Models
 @using PagedList.Mvc
-@model IPagedList<BookViewModel>
+@model ManageViewModel
 @{
 	Layout = "~/Views/Shared/_Layout.cshtml";
 	ViewBag.Title = "Admin Home";
@@ -15,63 +14,117 @@
 {
 	<div class="alert alert-success alert-dismissable">
 		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
-		@TempData["Deleted"].ToString()
+		@TempData["Deleted"]
+	</div>
+}
+
+@if (TempData["Readded"] != null)
+{
+	<div class="alert alert-success alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["Readded"]
 	</div>
 }
 
 <input type="button" class="btn btn-default float-right" value="Add book" onclick="location.href='@Url.Action("Create", "Book")'" />
 
-@using (Html.BeginForm())
-{
-	<div class="input-group">
-		@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control", @type="search", placeholder = "Search by Author or Title" })
-		<span class="input-group-btn">
-			<button class="btn btn-default" type="button">
-				<span class="glyphicon glyphicon-search"></span>
-			</button>
-		</span>
-	</div>
+@{
+	var modelList = String.IsNullOrEmpty(ViewBag.CurrentFilter) ? Model.CurrentInventory : Model.WholeInventory;
 }
 
-
-@if (Model.Count > 0)
+@if (Model.CurrentInventory.Count == 0)
 {
-	<table id="bookInventory" class="table table-hover">
-		<thead>
-			<tr>
-				<th>Author</th>
-				<th>Title</th>
-				<th>Book Score</th>
-				<th>Stock</th>
-				<th>@*Actions*@</th>
-			</tr>
-		</thead>
-		@foreach (var entry in Model)
-		{
-			<tr>
-				<td>@Html.DisplayFor(modelItem => entry.Author)</td>
-				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
-				<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
-				<td>@Html.DisplayFor(modelItem => entry.Stock)</td>
-				<td>@Html.ActionLink("Edit", "Edit", new { bookId = entry.BookId })  |  @Html.ActionLink("Delete", "Delete", new { bookId = entry.BookId })</td>
-			</tr>
-		}
-	</table>
-	<br />
+	modelList = Model.WholeInventory;
 
-	<p>Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount</p>
-
-	@Html.PagedListPager(Model, page => Url.Action("Manage",
-		new { currentFilter = ViewBag.CurrentFilter, page }))
-}
-else
-{
-	if (String.IsNullOrEmpty(ViewBag.CurrentFilter))
+	<h4>The current inventory is empty.</h4>
+	<p>Do you want to show the old inventory?</p>
+	<label class="switch">
+		<input id="showOldInventory" type="checkbox">
+		<span class="slider round"></span>
+	</label>
+	if (Model.WholeInventory.Count == 0)
 	{
-		<h4> Currently the inventory is empty.</h4>
+		<p id="emptyOldInventory"
+		   data - toggle="tooltip"
+		   title="No books were previously added and deleted from the inventory.">
+			The old inventory is empty.
+		</p>
 	}
-	else
+}
+
+
+<div id="searchAndList">
+	@*@if ((!String.IsNullOrEmpty(ViewBag.CurrentFilter) && modelList.Count == 0) || (String.IsNullOrEmpty(ViewBag.CurrentFilter) && modelList.Count > 0))*@
+
+	@using (Html.BeginForm())
+	{
+		<div class="input-group">
+			@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control", /*@type = "search",*/ placeholder = "Search by Author or Title" })
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="button">
+					<span class="glyphicon glyphicon-search"></span>
+				</button>
+			</span>
+		</div>
+	}
+
+
+	@if (modelList.Count > 0)
+	{
+		<table id="bookInventory" class="table table-hover">
+			<thead>
+				<tr>
+					<th>Author</th>
+					<th>Title</th>
+					<th>Book Score</th>
+					<th>Stock</th>
+					<th>@*Actions*@</th>
+				</tr>
+			</thead>
+
+			@foreach (var entry in modelList)
+			{
+				<tr>
+					<td>@Html.DisplayFor(modelItem => entry.Author)</td>
+					<td>@Html.DisplayFor(modelItem => entry.Title)</td>
+					<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
+					<td>@Html.DisplayFor(modelItem => entry.Stock)</td>
+					@if (entry.IsDisabled)
+					{
+						<td data-toggle="tooltip"
+							title="This book was previously removed from the inventory. To edit it, you must first readd it.">
+							@Html.ActionLink("Readd", "Enable", new { bookId = entry.BookId })
+						</td>
+					}
+					else
+					{
+						<td>@Html.ActionLink("Edit", "Edit", new { bookId = entry.BookId }) | @Html.ActionLink("Delete", "Delete", new { bookId = entry.BookId })</td>
+					}
+				</tr>
+			}
+		</table>
+		<br />
+
+		<p>Page @(modelList.PageCount < modelList.PageNumber ? 0 : modelList.PageNumber) of @modelList.PageCount</p>
+
+		@Html.PagedListPager(modelList, page => Url.Action("Manage", new { currentFilter = ViewBag.CurrentFilter, page }))
+	}
+	else if (!String.IsNullOrEmpty(ViewBag.CurrentFilter))
 	{
 		<p>No matching books were found.</p>
 	}
+</div>
+
+
+@section Scripts {
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$("#showOldInventory").click(function() {
+				$("#searchAndList").toggle(this.checked);
+				if (@Model.WholeInventory.Count === 0) {
+					$("#emptyOldInventory").toggleClass('hidden', !this.checked);
+				}
+			}).triggerHandler('click');
+		});
+	</script>
 }

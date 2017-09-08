@@ -70,7 +70,7 @@ namespace Levi9Library.Infrastructure.Repositories
 			_context.SaveChanges();
 		}
 
-		public void DeleteBook(Book book)
+		public void ToggleEnabled(Book book)
 		{
 			_context.Entry(book).State = EntityState.Modified;
 			_context.SaveChanges();

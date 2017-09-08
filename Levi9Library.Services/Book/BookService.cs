@@ -23,6 +23,11 @@ namespace Levi9LibraryServices
 			return _bookRepository.GetBooks();
 		}
 
+		public IList<Book> GetBooksIncludingDisabled()
+		{
+			return _bookRepository.GetBooksIncludingDisabled();
+		}
+
 		public IList<Book> GetAvailableBooks()
 		{
 			return _bookRepository.GetAvailableBooks();
@@ -87,11 +92,11 @@ namespace Levi9LibraryServices
 			return Result.Ok();
 		}
 
-		public void DeleteBook(int bookId)
+		public void ToggleEnabled(int bookId)
 		{
-			var bookToDelete = GetBook(bookId);
-			bookToDelete.IsDisabled = true;
-			_bookRepository.DeleteBook(bookToDelete);
+			var bookToModify = GetBook(bookId);
+			bookToModify.IsDisabled = !bookToModify.IsDisabled;
+			_bookRepository.ToggleEnabled(bookToModify);
 		}
 
 		public Result BorrowBook(string userId, Book book)

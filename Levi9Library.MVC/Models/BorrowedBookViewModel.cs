@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Levi9Library.MVC.Models
 {
-	public class LendingHistoryViewModel
+	public class BorrowedBookViewModel
 	{
 		public int BookId { get; set; }
 		public string Title { get; set; }
