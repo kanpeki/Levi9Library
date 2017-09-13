@@ -22,11 +22,10 @@ namespace Levi9Library.Infrastructure.Repositories
 				.ToList();
 		}
 
-		public IList<Book> GetBooksIncludingDisabled()
+		public IQueryable<Book> GetBooksIncludingDisabled()
 		{
 			return _context
-				.Books
-				.ToList();
+				.Books;
 		}
 
 		public IList<Book> GetAvailableBooks()

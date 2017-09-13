@@ -23,7 +23,7 @@ namespace Levi9LibraryServices
 			return _bookRepository.GetBooks();
 		}
 
-		public IList<Book> GetBooksIncludingDisabled()
+		public IQueryable<Book> GetBooksIncludingDisabled()
 		{
 			return _bookRepository.GetBooksIncludingDisabled();
 		}

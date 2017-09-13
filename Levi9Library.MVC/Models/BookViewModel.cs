@@ -14,6 +14,7 @@ namespace Levi9Library.MVC.Models
 
 		[Required(ErrorMessage = "Enter the book score")]
 		[Range(1, int.MaxValue, ErrorMessage = "Book score must be greater than 0")]
+		[Display(Name = "Book Score")]
 		public int BookScore { get; set; }
 
 		[Required(ErrorMessage = "Enter the book stock")]

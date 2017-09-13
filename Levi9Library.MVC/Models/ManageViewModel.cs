@@ -1,10 +1,16 @@
-﻿using PagedList;
+﻿using System.ComponentModel.DataAnnotations;
+using Levi9LibraryDomain;
+using PagedList;
 
 namespace Levi9Library.MVC.Models
 {
 	public class ManageViewModel
 	{
-		public IPagedList<ManageBookViewModel> WholeInventory;
-		public IPagedList<ManageBookViewModel> CurrentInventory;
+		public IPagedList<Book> Inventory;
+
+		public string SearchString { get; set; }
+
+		[Display(Name = "Include old inventory")]
+		public bool OldInventoryIsShown { get; set; }
 	}
 }

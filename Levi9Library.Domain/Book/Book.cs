@@ -13,18 +13,13 @@ namespace Levi9LibraryDomain
 		public int BookId { get; set; }
 
 		[Required]
-		[MinLength(1)]
 		public string Title { get; set; }
 
 		[Required]
-		[MinLength(1)]
 		public string Author { get; set; }
 
-		[Required]
-		[Display(Name = "Book Score")]
 		public int BookScore { get; set; }
 
-		[Required]
 		public int Stock { get; set; }
 
 		public int BorrowedCount { get; set; } = 0;

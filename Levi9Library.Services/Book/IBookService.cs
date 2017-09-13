@@ -3,13 +3,14 @@ using Levi9Library.Services.DTOs;
 using Levi9LibraryDomain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Levi9LibraryServices
 {
 	public interface IBookService
 	{
 		IList<Book> GetBooks();
-		IList<Book> GetBooksIncludingDisabled();
+		IQueryable<Book> GetBooksIncludingDisabled();
 		IList<Book> GetAvailableBooks();
 		Tuple<IList<BookWithDatesNoStockDto>, IList<BookWithDatesNoStockDto>> GetBorrowedBooks(string userId);
 		Book GetBook(int bookId);

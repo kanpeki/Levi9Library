@@ -1,5 +1,6 @@
 ﻿using Levi9Library.Core;
 using Levi9Library.MVC.Models;
+using Levi9Library.Services.DTOs;
 using Levi9LibraryDomain;
 using Levi9LibraryServices;
 using Microsoft.AspNet.Identity;
@@ -8,7 +9,6 @@ using PagedList;
 using System;
 using System.Linq;
 using System.Web.Mvc;
-using Levi9Library.Services.DTOs;
 
 namespace Levi9Library.MVC.Controllers
 {
@@ -100,7 +100,7 @@ namespace Levi9Library.MVC.Controllers
 
 		//
 		// Manage
-		public ActionResult Manage(string currentFilter, string searchString, int? page)
+		public ActionResult Manage(string currentFilter, string searchString, int? page, bool? oldInventoryIsShown)
 		{
 			if (searchString != null)
 			{
@@ -113,13 +113,18 @@ namespace Levi9Library.MVC.Controllers
 
 			ViewBag.CurrentFilter = searchString;
 
-			var wholeInventory = _bookService.GetBooksIncludingDisabled().Select(b => Mapper.Map<Book, ManageBookViewModel>(b));
-			var currentInventory = _bookService.GetBooks().Select(b => Mapper.Map<Book, ManageBookViewModel>(b));
+			var inventory = _bookService.GetBooksIncludingDisabled();
+
+			oldInventoryIsShown = oldInventoryIsShown ?? false;
+			if (oldInventoryIsShown == false)
+			{
+				inventory = inventory.Where(b => !b.IsDisabled);
+			}
 
 			if (!String.IsNullOrEmpty(searchString))
 			{
-				wholeInventory = wholeInventory.Where(b => b.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
-										 || b.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+				inventory = inventory.Where(b => b.Author.ToLower().Contains(searchString.ToLower())
+												 || b.Title.ToLower().Contains(searchString.ToLower()));
 			}
 
 			int pageSize = 3;
@@ -127,12 +132,41 @@ namespace Levi9Library.MVC.Controllers
 
 			var model = new ManageViewModel
 			{
-				WholeInventory = wholeInventory.ToPagedList(pageNumber, pageSize),
-				CurrentInventory = currentInventory.ToPagedList(pageNumber, pageSize)
+				Inventory = inventory.OrderBy(book => book.Author).ToPagedList(pageNumber, pageSize),
+				SearchString = searchString,
+				OldInventoryIsShown = (bool)oldInventoryIsShown
 			};
 
 			return View(model);
 		}
+
+
+		//public ActionResult Manage(string currentFilter, string searchString, int? page, bool? oldInventoryIsShown)
+		//{
+		//	ViewBag.CurrentFilter = searchString;
+
+		//	var inventory = _bookService.GetBooksIncludingDisabled();
+
+		//	if (oldInventoryIsShown.HasValue && oldInventoryIsShown == false)
+		//	{
+		//		inventory = inventory.Where(b => !b.IsDisabled);
+		//	}
+		//	if (!String.IsNullOrEmpty(searchString))
+		//	{
+		//		inventory = inventory.Where(b => b.Author.ToLower().Contains(searchString.ToLower())
+		//								 || b.Title.ToLower().Contains(searchString.ToLower()));
+		//	}
+		//	int pageNumber = page ?? 1;
+		//	int pageSize = 3;
+		//	var model = new ManageViewModel
+		//	{
+		//		Inventory = inventory.OrderBy(book => book.Author).ToPagedList(pageNumber, pageSize),
+		//		SearchString = searchString,
+		//		OldInventoryIsShown = oldInventoryIsShown ?? false
+		//	};
+
+		//	return View(model);
+		//}
 
 
 		//

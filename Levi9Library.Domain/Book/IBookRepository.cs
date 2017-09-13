@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Levi9LibraryDomain
 {
 	public interface IBookRepository
 	{
 		IList<Book> GetBooks();
-		IList<Book> GetBooksIncludingDisabled();
+		IQueryable<Book> GetBooksIncludingDisabled();
 		IList<Book> GetAvailableBooks();
 		IList<UserBook> GetUserBooks();
 		Book GetBook(int bookId);

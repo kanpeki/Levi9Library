@@ -1,4 +1,6 @@
-﻿@using Levi9Library.MVC.Models
+﻿@using System.Web.Mvc.Html
+@using Levi9Library.MVC.Models
+@using PagedList
 @using PagedList.Mvc
 @model ManageViewModel
 @{
@@ -28,103 +30,155 @@
 
 <input type="button" class="btn btn-default float-right" value="Add book" onclick="location.href='@Url.Action("Create", "Book")'" />
 
-@{
-	var modelList = String.IsNullOrEmpty(ViewBag.CurrentFilter) ? Model.CurrentInventory : Model.WholeInventory;
-}
+@*@if (!Model.OldInventoryIsShown && String.IsNullOrEmpty(ViewBag.CurrentFilter) && Model.Inventory.Count == 0)
+	{
+		<p id="emptyCurrentInventory">The current inventory is empty.</p>
+	}
 
-@if (Model.CurrentInventory.Count == 0)
-{
-	modelList = Model.WholeInventory;
+	<p>Include archived entries?</p>
 
-	<h4>The current inventory is empty.</h4>
-	<p>Do you want to show the old inventory?</p>
 	<label class="switch">
-		<input id="showOldInventory" type="checkbox">
+		<input id="oldInventoryIsShown"
+			   name="oldInventoryIsShown"
+			   value="@Model.OldInventoryIsShown"
+			   type="checkbox"
+			   @(Model.OldInventoryIsShown ? "checked='checked'" : "") />
 		<span class="slider round"></span>
 	</label>
-	if (Model.WholeInventory.Count == 0)
+
+	@if (Model.OldInventoryIsShown && String.IsNullOrEmpty(ViewBag.CurrentFilter) && Model.Inventory.Count == 0)
 	{
-		<p id="emptyOldInventory"
-		   data - toggle="tooltip"
-		   title="No books were previously added and deleted from the inventory.">
-			The old inventory is empty.
-		</p>
+		<p id="noArchivedEntries">There are no archived inventory entries.</p>
 	}
-}
+	}*@
 
 
-<div id="searchAndList">
-	@*@if ((!String.IsNullOrEmpty(ViewBag.CurrentFilter) && modelList.Count == 0) || (String.IsNullOrEmpty(ViewBag.CurrentFilter) && modelList.Count > 0))*@
+@using (Html.BeginForm("Manage", "Book", FormMethod.Get))
+{
+	<p>Include archived entries?</p>
 
-	@using (Html.BeginForm())
-	{
+	@*<label class="switch">
+			@Html.CheckBoxFor(m => m.OldInventoryIsShown)
+			<input id="OldInventoryIsShown"
+				   name="OldInventoryIsShown"
+				   value="@Model.OldInventoryIsShown"
+				   type="checkbox" />
+			<span class="slider round"></span>
+		</label>*@
+
+	@*<input data-val="true" data-val-required="The Include old inventory field is required." id="OldInventoryIsShown" name="OldInventoryIsShown" type="checkbox" value="true">
+		<input name="OldInventoryIsShown" type="hidden" value="false">
+		<label for="OldInventoryIsShown">Include old inventory</label>*@
+
+	@*@Html.CheckBoxFor(m => m.OldInventoryIsShown)
+		@Html.LabelFor(m => m.OldInventoryIsShown)*@
+
+
+@*	<div class="slider">
+		<input type="checkbox" value="None" id="checkbox-toggle-pill" name="checkbox-toggle-pill"
+		       class="toggle-pill"/>
+		<label class="toggle-label" for="checkbox-toggle-pill">
+		</label>
+	</div>
+
+		<div class="slider">
+			@#1#Html.CheckBoxFor(m => m.OldInventoryIsShown, new { @class = "toggle-pill" })#1#
+			@Html.CheckBoxSimple("OldInventoryIsShown", new { value = Model.OldInventoryIsShown, @class = "toggle-pill" })
+			@Html.LabelFor(m => m.OldInventoryIsShown, new { @class = "toggle-label" })
+		</div>*@
+
+	@*@Html.CheckBoxSimple("OldInventoryIsShown", new { value = Model.OldInventoryIsShown })*@
+	@Html.CheckBoxFor(m => m.OldInventoryIsShown)
+	@Html.LabelFor(m => m.OldInventoryIsShown)
+
+		@*@Html.TextBoxFor(m => m.SearchString)
+			<input type="submit" value="search" />*@
 		<div class="input-group">
-			@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new { @class = "form-control", /*@type = "search",*/ placeholder = "Search by Author or Title" })
+			@Html.TextBoxFor(m => m.SearchString, ViewBag.CurrentFilter as string, new { @class = "form-control", type = "search", placeholder = "Search by Author or Title" })
 			<span class="input-group-btn">
-				<button class="btn btn-default" type="button">
+				<button class="btn btn-default" type="submit">
 					<span class="glyphicon glyphicon-search"></span>
 				</button>
 			</span>
 		</div>
-	}
+}
 
+@if (Model.Inventory.Count > 0)
+{
+	<table id="bookInventory" class="table table-hover">
+		<thead>
+			<tr>
+				<th>Author</th>
+				<th>Title</th>
+				<th>Book Score</th>
+				<th>Stock</th>
+				<th>@*Actions*@</th>
+			</tr>
+		</thead>
 
-	@if (modelList.Count > 0)
-	{
-		<table id="bookInventory" class="table table-hover">
-			<thead>
-				<tr>
-					<th>Author</th>
-					<th>Title</th>
-					<th>Book Score</th>
-					<th>Stock</th>
-					<th>@*Actions*@</th>
-				</tr>
-			</thead>
+		@foreach (var entry in Model.Inventory)
+				{
+			<tr>
+				<td>@Html.DisplayFor(modelItem => entry.Author)</td>
+				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
+				<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
+				<td>@Html.DisplayFor(modelItem => entry.Stock)</td>
+				@if (entry.IsDisabled)
+				{
+					<td data-toggle="tooltip"
+						title="This book was previously removed from the inventory. To edit it, you must first readd it.">
+						@Html.ActionLink("Readd", "Enable", new { bookId = entry.BookId })
+					</td>
+				}
+				else
+				{
+					<td>@Html.ActionLink("Edit", "Edit", new { bookId = entry.BookId }) | @Html.ActionLink("Delete", "Delete", new { bookId = entry.BookId })</td>
+				}
+			</tr>
+				}
+	</table>
+			<br />
 
-			@foreach (var entry in modelList)
-			{
-				<tr>
-					<td>@Html.DisplayFor(modelItem => entry.Author)</td>
-					<td>@Html.DisplayFor(modelItem => entry.Title)</td>
-					<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
-					<td>@Html.DisplayFor(modelItem => entry.Stock)</td>
-					@if (entry.IsDisabled)
-					{
-						<td data-toggle="tooltip"
-							title="This book was previously removed from the inventory. To edit it, you must first readd it.">
-							@Html.ActionLink("Readd", "Enable", new { bookId = entry.BookId })
-						</td>
-					}
-					else
-					{
-						<td>@Html.ActionLink("Edit", "Edit", new { bookId = entry.BookId }) | @Html.ActionLink("Delete", "Delete", new { bookId = entry.BookId })</td>
-					}
-				</tr>
-			}
-		</table>
-		<br />
-
-		<p>Page @(modelList.PageCount < modelList.PageNumber ? 0 : modelList.PageNumber) of @modelList.PageCount</p>
-
-		@Html.PagedListPager(modelList, page => Url.Action("Manage", new { currentFilter = ViewBag.CurrentFilter, page }))
-	}
-	else if (!String.IsNullOrEmpty(ViewBag.CurrentFilter))
-	{
-		<p>No matching books were found.</p>
-	}
-</div>
-
+			<p>Page @(Model.Inventory.PageCount < Model.Inventory.PageNumber ? 0 : Model.Inventory.PageNumber) of @Model.Inventory.PageCount</p>
+			@Html.PagedListPager(Model.Inventory, page =>
+		Url.Action("Manage", new { page, oldInventoryIsShown = Model.OldInventoryIsShown, currentFilter = ViewBag.CurrentFilter }))
+}
+else if (!String.IsNullOrEmpty(ViewBag.CurrentFilter))
+{
+	<p>No matching books were found.</p>
+}
 
 @section Scripts {
 	<script type="text/javascript">
-		$(document).ready(function() {
-			$("#showOldInventory").click(function() {
-				$("#searchAndList").toggle(this.checked);
-				if (@Model.WholeInventory.Count === 0) {
-					$("#emptyOldInventory").toggleClass('hidden', !this.checked);
-				}
-			}).triggerHandler('click');
+		var isChecked;
+		$('#OldInventoryIsShown').click(function () {
+
+			//var attr = $(this).attr('checked');
+
+			//// For some browsers, `attr` is undefined; for others, `attr` is false. Check for both.
+			//if (typeof attr !== typeof undefined && attr !== false) {
+			//	console.log("true");
+			//}
+			//else {
+			//	console.log("false");
+			//}
+
+			if ($(this).is(':checked'))
+			//$(this).toggleClass("checked");
+			//if ($(this).hasClass("checked"))
+			{
+				console.log("true");
+				isChecked = true;
+			}
+			else {
+				console.log("false");
+				isChecked = false;
+			};
+
+			//$('#searchInventory').submit();
 		});
+		GetIsChecked = function() {
+			return isChecked;
+		};
 	</script>
 }
