@@ -12,8 +12,16 @@
 </p>
 <p class="float-right"
    data-toggle="tooltip"
-   title="This is the number of times you were late returning a book. After @ViewBag.Times times you will be banned for @ViewBag.Duration.">
-	Late count: @Model.OverdueCount
+   title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration.">
+	Status:
+	@if (Model.OverdueCount < ViewBag.Times)
+	{
+		<span class="text-success">OK</span>
+	}
+	else
+	{
+		<span class="text-danger">Banned</span>
+	}
 </p>
 
 <h3>Currently borrowing</h3>

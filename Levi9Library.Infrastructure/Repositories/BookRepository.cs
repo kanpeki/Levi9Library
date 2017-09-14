@@ -22,11 +22,10 @@ namespace Levi9Library.Infrastructure.Repositories
 				.ToList();
 		}
 
-		public IList<Book> GetBooksIncludingDisabled()
+		public IQueryable<Book> GetBooksIncludingDisabled()
 		{
 			return _context
-				.Books
-				.ToList();
+				.Books;
 		}
 
 		public IList<Book> GetAvailableBooks()
@@ -70,7 +69,7 @@ namespace Levi9Library.Infrastructure.Repositories
 			_context.SaveChanges();
 		}
 
-		public void DeleteBook(Book book)
+		public void ToggleEnabled(Book book)
 		{
 			_context.Entry(book).State = EntityState.Modified;
 			_context.SaveChanges();

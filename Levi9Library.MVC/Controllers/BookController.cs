@@ -1,5 +1,6 @@
 ﻿using Levi9Library.Core;
 using Levi9Library.MVC.Models;
+using Levi9Library.Services.DTOs;
 using Levi9LibraryDomain;
 using Levi9LibraryServices;
 using Microsoft.AspNet.Identity;
@@ -37,14 +38,7 @@ namespace Levi9Library.MVC.Controllers
 			var user = _userService.GetUser(User.Identity.GetUserId());
 			var availableBooks = _bookService
 				.GetAvailableBooks()
-				.Select(b => new BookViewModel
-				{
-					BookId = b.BookId,
-					Title = b.Title,
-					Author = b.Author,
-					Stock = b.Stock,
-					BookScore = b.BookScore
-				});
+				.Select(b => Mapper.Map<Book, BookViewModel>(b));
 
 			if (searchString != null)
 			{
@@ -106,7 +100,7 @@ namespace Levi9Library.MVC.Controllers
 
 		//
 		// Manage
-		public ActionResult Manage(string currentFilter, string searchString, int? page)
+		public ActionResult Manage(string currentFilter, string searchString, int? page, bool? oldInventoryIsShown)
 		{
 			if (searchString != null)
 			{
@@ -119,27 +113,29 @@ namespace Levi9Library.MVC.Controllers
 
 			ViewBag.CurrentFilter = searchString;
 
-			var books = _bookService
-				.GetBooks()
-				.Select(b => new BookViewModel
-				{
-					BookId = b.BookId,
-					Title = b.Title,
-					Author = b.Author,
-					Stock = b.Stock,
-					BookScore = b.BookScore
-				});
+			var inventory = _bookService.GetBooksIncludingDisabled();
+
+			oldInventoryIsShown = oldInventoryIsShown ?? false;
+			if (oldInventoryIsShown == false)
+			{
+				inventory = inventory.Where(b => !b.IsDisabled);
+			}
 
 			if (!String.IsNullOrEmpty(searchString))
 			{
-				books = books.Where(b => b.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0
-										 || b.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+				inventory = inventory.Where(b => b.Author.ToLower().Contains(searchString.ToLower())
+												 || b.Title.ToLower().Contains(searchString.ToLower()));
 			}
 
 			int pageSize = 3;
 			int pageNumber = page ?? 1;
 
-			var model = books.ToPagedList(pageNumber, pageSize);
+			var model = new ManageViewModel
+			{
+				Inventory = inventory.OrderBy(book => book.Author).ToPagedList(pageNumber, pageSize),
+				SearchString = searchString,
+				OldInventoryIsShown = (bool)oldInventoryIsShown
+			};
 
 			return View(model);
 		}
@@ -158,26 +154,9 @@ namespace Levi9Library.MVC.Controllers
 			var userId = User.Identity.GetUserId();
 			var user = _userService.GetUser(userId);
 			var userBooks = _bookService.GetBorrowedBooks(userId);
-			var currentlyBorrowing = from bUb in userBooks.Item1
-									 select new LendingHistoryViewModel
-									 {
-										 BookId = bUb.BookId,
-										 Author = bUb.Author,
-										 Title = bUb.Title,
-										 BookScore = bUb.BookScore,
-										 DateBorrowed = bUb.DateBorrowed,
-										 DateReturned = bUb.DateReturned
-									 };
-			var previouslyBorrowed = from bUb in userBooks.Item2
-									 select new LendingHistoryViewModel
-									 {
-										 BookId = bUb.BookId,
-										 Author = bUb.Author,
-										 Title = bUb.Title,
-										 BookScore = bUb.BookScore,
-										 DateBorrowed = bUb.DateBorrowed,
-										 DateReturned = bUb.DateReturned
-									 };
+			var currentlyBorrowing = userBooks.Item1.Select(b => Mapper.Map<BookWithDatesNoStockDto, BorrowedBookViewModel>(b));
+			var previouslyBorrowed = userBooks.Item2.Select(b => Mapper.Map<BookWithDatesNoStockDto, BorrowedBookViewModel>(b));
+
 			switch (sortOrder)
 			{
 				case "DateReturned":
@@ -230,7 +209,7 @@ namespace Levi9Library.MVC.Controllers
 
 
 		//
-		// Book Details
+		// GET: /Book/Details
 		public ActionResult Details(int bookId)
 		{
 			var book = _bookService.GetBook(bookId);
@@ -243,14 +222,14 @@ namespace Levi9Library.MVC.Controllers
 
 
 		//
-		// GET: /Create
+		// GET: /Book/Create
 		[Authorize(Roles = "Admin")]
 		public ActionResult Create()
 		{
 			return View();
 		}
 
-		// POST: /Create
+		// POST: /Book/Create
 		[HttpPost]
 		[Authorize(Roles = "Admin")]
 		[ValidateAntiForgeryToken]
@@ -268,7 +247,7 @@ namespace Levi9Library.MVC.Controllers
 
 
 		//
-		// GET: /Edit/5
+		// GET: /Book/Edit/5
 		[Authorize(Roles = "Admin")]
 		public ActionResult Edit(int bookId = 0)
 		{
@@ -280,7 +259,7 @@ namespace Levi9Library.MVC.Controllers
 			return View(Mapper.Map<Book, BookViewModel>(editedBook));
 		}
 
-		// POST: /Edit/5
+		// POST: /Book/Edit/5
 		[HttpPost]
 		[Authorize(Roles = "Admin")]
 		[ValidateAntiForgeryToken]
@@ -303,7 +282,7 @@ namespace Levi9Library.MVC.Controllers
 		}
 
 
-		// GET: /Restaurant/Delete/5
+		// GET: /Book/Delete/5
 		[Authorize(Roles = "Admin")]
 		public ActionResult Delete(int bookId = 0)
 		{
@@ -316,16 +295,28 @@ namespace Levi9Library.MVC.Controllers
 		}
 
 
-		// POST: /Restaurant/Delete/5
+		// POST: /Book/Delete/5
 		[HttpPost, ActionName("Delete")]
 		[Authorize(Roles = "Admin")]
 		public ActionResult DeleteConfirmed(int bookId)
 		{
-			_bookService.DeleteBook(bookId);
+			_bookService.ToggleEnabled(bookId);
 			TempData["Deleted"] = "The book was successfully deleted.";
 			return RedirectToAction("Manage");
 		}
 
+		// POST: /Book/Enable
+		public ActionResult Enable(int bookId = 0)
+		{
+			var bookToBeEnabled = _bookService.GetBook(bookId);
+			if (bookToBeEnabled == null)
+			{
+				return HttpNotFound();
+			}
+			_bookService.ToggleEnabled(bookToBeEnabled.BookId);
+			TempData["Readded"] = $"You have successfully readded {bookToBeEnabled.Title} by {bookToBeEnabled.Author}.";
+			return RedirectToAction("Manage");
+		}
 
 		//
 		// Borrow
@@ -339,6 +330,7 @@ namespace Levi9Library.MVC.Controllers
 				return HttpNotFound();
 			}
 			var result = _bookService.BorrowBook(userId, book);
+
 			if (result.IsSuccess)
 			{
 				TempData["Success"] = "You successfully borrowed ";

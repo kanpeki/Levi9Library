@@ -90,8 +90,7 @@ namespace Levi9Library.Infrastructure.Migrations
 							new Book { Title = "The Clean Coder", Author = "John Martin", BookScore = 20, Stock = 1, BorrowedCount = 0 },
 							new Book { Title = "Hacking: The Art of Exploitation", Author = "Jon Erickson", BookScore = 10, Stock = 1, BorrowedCount = 0 }
 						);*/
-			/*
-						context.UserBooks.AddOrUpdate(
+			/*			context.UserBooks.AddOrUpdate(
 							ub => new { ub.Id, ub.BookId, ub.DateBorrowed },
 							new UserBook { Id = userManager.FindByEmail("test@mailinator.com").Id, BookId = 1, DateBorrowed = new DateTime(2017, 04, 30), DateReturned = new DateTime(2017, 06, 02) },
 							new UserBook { Id = userManager.FindByEmail("test@mailinator.com").Id, BookId = 2, DateBorrowed = new DateTime(2017, 06, 10), DateReturned = null },

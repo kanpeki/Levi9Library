@@ -5,8 +5,8 @@ namespace Levi9Library.MVC.Models
 {
 	public class HistoryViewModel
 	{
-		public IList<LendingHistoryViewModel> CurrentlyBorrowing;
-		public IPagedList<LendingHistoryViewModel> BorrowedBooks;
+		public IList<BorrowedBookViewModel> CurrentlyBorrowing;
+		public IPagedList<BorrowedBookViewModel> BorrowedBooks;
 		public int UserScore;
 		public int OverdueCount;
 	}
