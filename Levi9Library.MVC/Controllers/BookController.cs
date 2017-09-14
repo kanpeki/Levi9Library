@@ -141,34 +141,6 @@ namespace Levi9Library.MVC.Controllers
 		}
 
 
-		//public ActionResult Manage(string currentFilter, string searchString, int? page, bool? oldInventoryIsShown)
-		//{
-		//	ViewBag.CurrentFilter = searchString;
-
-		//	var inventory = _bookService.GetBooksIncludingDisabled();
-
-		//	if (oldInventoryIsShown.HasValue && oldInventoryIsShown == false)
-		//	{
-		//		inventory = inventory.Where(b => !b.IsDisabled);
-		//	}
-		//	if (!String.IsNullOrEmpty(searchString))
-		//	{
-		//		inventory = inventory.Where(b => b.Author.ToLower().Contains(searchString.ToLower())
-		//								 || b.Title.ToLower().Contains(searchString.ToLower()));
-		//	}
-		//	int pageNumber = page ?? 1;
-		//	int pageSize = 3;
-		//	var model = new ManageViewModel
-		//	{
-		//		Inventory = inventory.OrderBy(book => book.Author).ToPagedList(pageNumber, pageSize),
-		//		SearchString = searchString,
-		//		OldInventoryIsShown = oldInventoryIsShown ?? false
-		//	};
-
-		//	return View(model);
-		//}
-
-
 		//
 		// History
 		public ActionResult History(string sortOrder, int? page)

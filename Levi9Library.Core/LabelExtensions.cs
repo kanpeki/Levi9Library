@@ -9,6 +9,7 @@ namespace Levi9Library.Core
 	{
 		public static MvcHtmlString LabelFor<TModel, TProperty>(this HtmlHelper<TModel> htmlHelper,
 																Expression<Func<TModel, TProperty>> ex,
+																object htmlAttributes,
 																Func<object, HelperResult> template)
 		{
 			var htmlFieldName = ExpressionHelper.GetExpressionText(ex);

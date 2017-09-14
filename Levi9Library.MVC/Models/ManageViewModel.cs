@@ -10,7 +10,7 @@ namespace Levi9Library.MVC.Models
 
 		public string SearchString { get; set; }
 
-		[Display(Name = "Include old inventory")]
+		[Display(Name = " ")]
 		public bool OldInventoryIsShown { get; set; }
 	}
 }
