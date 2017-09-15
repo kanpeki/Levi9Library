@@ -24,7 +24,7 @@ namespace Levi9LibraryDomain
 
 		public int BorrowedCount { get; set; } = 0;
 
-		public bool IsDisabled { get; set; } = false;
+		public bool IsArchived { get; set; } = false;
 
 		public virtual ICollection<UserBook> UserBooks { get; set; }
 	}

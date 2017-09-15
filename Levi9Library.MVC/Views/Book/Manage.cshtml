@@ -82,7 +82,7 @@
 				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
 				<td class="medium-screen">@Html.DisplayFor(modelItem => entry.BookScore)</td>
 				<td class="medium-screen">@Html.DisplayFor(modelItem => entry.Stock)</td>
-				@if (entry.IsDisabled)
+				@if (entry.IsArchived)
 				{
 					<td data-toggle="tooltip"
 						title="This book was previously removed from the inventory. To edit it, you must first readd it.">
@@ -102,8 +102,9 @@
 	</table>
 	<br />
 
-			<p>Page @(Model.Inventory.PageCount < Model.Inventory.PageNumber ? 0 : Model.Inventory.PageNumber) of @Model.Inventory.PageCount</p>
-			@Html.PagedListPager(Model.Inventory, page =>
+	<p>Page @(Model.Inventory.PageCount < Model.Inventory.PageNumber ? 0 : Model.Inventory.PageNumber) of @Model.Inventory.PageCount</p>
+
+	@Html.PagedListPager(Model.Inventory, page =>
 		Url.Action("Manage", new { page, oldInventoryIsShown = Model.OldInventoryIsShown, currentFilter = ViewBag.CurrentFilter }))
 }
 else if (!String.IsNullOrEmpty(ViewBag.CurrentFilter))

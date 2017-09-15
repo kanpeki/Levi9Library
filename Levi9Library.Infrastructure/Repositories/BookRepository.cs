@@ -14,12 +14,11 @@ namespace Levi9Library.Infrastructure.Repositories
 			_context = context;
 		}
 
-		public IList<Book> GetBooks()
+		public IQueryable<Book> GetBooks()
 		{
 			return _context
 				.Books
-				.Where(book => !book.IsDisabled)
-				.ToList();
+				.Where(book => !book.IsArchived);
 		}
 
 		public IQueryable<Book> GetBooksIncludingDisabled()
@@ -28,12 +27,11 @@ namespace Levi9Library.Infrastructure.Repositories
 				.Books;
 		}
 
-		public IList<Book> GetAvailableBooks()
+		public IQueryable<Book> GetAvailableBooks()
 		{
 			return _context
 				.Books
-				.Where(book => !book.IsDisabled && book.BorrowedCount < book.Stock)
-				.ToList();
+				.Where(book => !book.IsArchived && book.BorrowedCount < book.Stock);
 		}
 
 		public IList<UserBook> GetUserBooks()
@@ -79,14 +77,6 @@ namespace Levi9Library.Infrastructure.Repositories
 		{
 			_context.UserBooks.Add(borrowedBook);
 			_context.SaveChanges();
-		}
-
-		public bool IsCurrentlyBorrowed(string userId, int bookId)
-		{
-			var borrowedBook = GetBookToBeReturned(userId, bookId);
-			if (borrowedBook == null)
-				return false;
-			return true;
 		}
 
 		public void ReturnBook(ApplicationUser user, Book book, UserBook bookToBeReturned)

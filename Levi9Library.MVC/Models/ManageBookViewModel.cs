@@ -22,6 +22,6 @@ namespace Levi9Library.MVC.Models
 
 		public int BorrowedCount { get; set; }
 
-		public bool IsDisabled { get; set; }
+		public bool IsArchived { get; set; }
 	}
 }

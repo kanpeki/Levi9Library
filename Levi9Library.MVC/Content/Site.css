@@ -133,12 +133,29 @@ p.float-right {
 	padding: 3px 0;
 }
 
-.page-count {
-	margin: -5px;
+.user-titles {
+	padding: 20px 0;
+}
+
+.hidden-text {
+	color: transparent;
+}
+
+.no-select {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 
 #addBookButton {
 	margin-bottom: 10px;
+}
+
+.index-form {
+	margin-top: 20px;
 }
 
 .manage-form {

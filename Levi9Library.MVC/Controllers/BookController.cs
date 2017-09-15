@@ -1,6 +1,5 @@
 ﻿using Levi9Library.Core;
 using Levi9Library.MVC.Models;
-using Levi9Library.Services.DTOs;
 using Levi9LibraryDomain;
 using Levi9LibraryServices;
 using Microsoft.AspNet.Identity;
@@ -35,11 +34,6 @@ namespace Levi9Library.MVC.Controllers
 				return RedirectToAction("Manage", "Book");
 			}
 
-			var user = _userService.GetUser(User.Identity.GetUserId());
-			var availableBooks = _bookService
-				.GetAvailableBooks()
-				.Select(b => Mapper.Map<Book, BookViewModel>(b));
-
 			if (searchString != null)
 			{
 				page = 1;
@@ -49,13 +43,14 @@ namespace Levi9Library.MVC.Controllers
 				searchString = currentFilter;
 			}
 
-			ViewBag.SearchString = searchString;
 			ViewBag.CurrentFilter = searchString;
+
+			var availableBooks = _bookService.GetAvailableBooks();
 
 			if (!String.IsNullOrEmpty(searchString))
 			{
-				availableBooks = availableBooks.Where(ab => ab.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 ||
-															ab.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+				availableBooks = availableBooks.Where(book => book.Author.ToLower().Contains(searchString.ToLower())
+														   || book.Title.ToLower().Contains(searchString.ToLower()));
 			}
 
 			ViewBag.CurrentSort = sortOrder;
@@ -87,11 +82,14 @@ namespace Levi9Library.MVC.Controllers
 
 			int pageSize = 3;
 			int pageNumber = page ?? 1;
+			var userId = User.Identity.GetUserId();
+			var user = _userService.GetUser(userId);
 
 			var model = new MainViewModel
 			{
 				AvailableBooks = availableBooks.ToPagedList(pageNumber, pageSize),
-				UserScore = user.UserScore
+				UserScore = user.UserScore,
+				IsBanned = user.IsBanned
 			};
 
 			return View(model);
@@ -118,13 +116,13 @@ namespace Levi9Library.MVC.Controllers
 			oldInventoryIsShown = oldInventoryIsShown ?? false;
 			if (oldInventoryIsShown == false)
 			{
-				inventory = inventory.Where(b => !b.IsDisabled);
+				inventory = inventory.Where(b => !b.IsArchived);
 			}
 
 			if (!String.IsNullOrEmpty(searchString))
 			{
-				inventory = inventory.Where(b => b.Author.ToLower().Contains(searchString.ToLower())
-												 || b.Title.ToLower().Contains(searchString.ToLower()));
+				inventory = inventory.Where(book => book.Author.ToLower().Contains(searchString.ToLower())
+												 || book.Title.ToLower().Contains(searchString.ToLower()));
 			}
 
 			int pageSize = 3;
@@ -153,9 +151,8 @@ namespace Levi9Library.MVC.Controllers
 
 			var userId = User.Identity.GetUserId();
 			var user = _userService.GetUser(userId);
-			var userBooks = _bookService.GetBorrowedBooks(userId);
-			var currentlyBorrowing = userBooks.Item1.Select(b => Mapper.Map<BookWithDatesNoStockDto, BorrowedBookViewModel>(b));
-			var previouslyBorrowed = userBooks.Item2.Select(b => Mapper.Map<BookWithDatesNoStockDto, BorrowedBookViewModel>(b));
+			var booksCurrentlyBorrowing = _bookService.GetBooksCurrentlyBorrowing(userId);
+			var previouslyBorrowed = _bookService.GetBooksPreviouslyBorrowed(userId);
 
 			switch (sortOrder)
 			{
@@ -199,10 +196,10 @@ namespace Levi9Library.MVC.Controllers
 
 			var model = new HistoryViewModel
 			{
-				CurrentlyBorrowing = currentlyBorrowing.ToList(),
+				CurrentlyBorrowing = booksCurrentlyBorrowing.ToList(),
 				BorrowedBooks = previouslyBorrowed.ToPagedList(pageNumber, pageSize),
 				UserScore = user.UserScore,
-				OverdueCount = user.OverdueCount
+				IsBanned = user.IsBanned
 			};
 			return View(model);
 		}

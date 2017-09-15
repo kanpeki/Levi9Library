@@ -14,7 +14,7 @@
    data-toggle="tooltip"
    title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration.">
 	Status:
-	@if (Model.OverdueCount < ViewBag.Times)
+	@if (!Model.IsBanned)
 	{
 		<span class="text-success">OK</span>
 	}
@@ -24,7 +24,7 @@
 	}
 </p>
 
-<h3>Currently borrowing</h3>
+<h3 class="user-titles">Currently borrowing</h3>
 
 @if (Model.CurrentlyBorrowing.Count == 0)
 {
@@ -39,7 +39,7 @@ else
 				<th>Title</th>
 				<th>Book Score</th>
 				<th>Date Borrowed</th>
-				<th>Date Returned</th>
+				<th class="hidden-text no-select">Date Returned</th>
 			</tr>
 		</thead>
 		@foreach (var entry in Model.CurrentlyBorrowing)
@@ -55,7 +55,7 @@ else
 	</table>
 }
 
-<h3>Lending history</h3>
+<h3 class="user-titles">Lending history</h3>
 
 @if (Model.BorrowedBooks.Count == 0)
 {
@@ -84,17 +84,9 @@ else
 			</tr>
 		}
 	</table>
+	<br/>
 
-	<p class="page-count">Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount</p>
+	<p>Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount</p>
 
 	@Html.PagedListPager(Model.BorrowedBooks, page => Url.Action("History", new { sortOrder = ViewBag.CurrentSort, page }))
 }
-
-@*<script>
-	$('#bannedAlert').on('click', function() {
-		window.location.reload();
-	});
-	$('#bannedAlert a').on('close', function() {
-			window.location.reload();
-		});
-</script>*@
