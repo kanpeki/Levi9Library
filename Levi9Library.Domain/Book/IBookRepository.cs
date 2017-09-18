@@ -8,13 +8,13 @@ namespace Levi9LibraryDomain
 		IQueryable<Book> GetBooks();
 		IQueryable<Book> GetBooksIncludingDisabled();
 		IQueryable<Book> GetAvailableBooks();
-		IList<UserBook> GetUserBooks();
 		Book GetBook(int bookId);
 		int AddBook(Book book);
 		void UpdateBook(Book book);
-		void ToggleEnabled(Book book);
+		void ToggleIsArchived(Book book);
 		void BorrowBook(UserBook borrowedBook);
 		void ReturnBook(ApplicationUser user, Book book, UserBook bookToBeReturned);
 		UserBook GetBookToBeReturned(string userId, int bookId);
+		void Dispose();
 	}
 }

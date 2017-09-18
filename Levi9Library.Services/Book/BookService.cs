@@ -37,6 +37,7 @@ namespace Levi9LibraryServices
 		{
 			var userLendingHistory = GetBorrowedBooks(userId);
 			var booksCurrentlyBorrowing = userLendingHistory.Where(book => book.DateReturned == null);
+
 			return booksCurrentlyBorrowing.ToList();
 		}
 
@@ -44,16 +45,17 @@ namespace Levi9LibraryServices
 		{
 			var userLendingHistory = GetBorrowedBooks(userId);
 			var booksPreviouslyBorrowed = userLendingHistory.Where(book => book.DateReturned != null);
+
 			return booksPreviouslyBorrowed.ToList();
 		}
 
 		private IList<BookWithDatesNoStockDto> GetBorrowedBooks(string userId)
 		{
 			var books = _bookRepository.GetBooksIncludingDisabled();
-			var userBooks = _bookRepository.GetUserBooks();
+			var user = _userService.GetUser(userId);
+			var userBooks = user.UserBooks;
 			var userLendingHistory = from ub in userBooks
 									 join b in books on ub.BookId equals b.BookId
-									 where ub.ApplicationUser.Id == userId
 									 select new BookWithDatesNoStockDto
 									 {
 										 BookId = b.BookId,
@@ -63,6 +65,7 @@ namespace Levi9LibraryServices
 										 DateBorrowed = ub.DateBorrowed,
 										 DateReturned = ub.DateReturned
 									 };
+
 			return userLendingHistory.ToList();
 		}
 
@@ -81,6 +84,7 @@ namespace Levi9LibraryServices
 				Stock = stock
 			};
 			var newBookId = _bookRepository.AddBook(newBook);
+
 			return newBookId;
 		}
 
@@ -101,14 +105,15 @@ namespace Levi9LibraryServices
 				BorrowedCount = borrowedCount
 			};
 			_bookRepository.UpdateBook(updatedBook);
+
 			return Result.Ok();
 		}
 
-		public void ToggleEnabled(int bookId)
+		public void ToggleIsArchived(int bookId)
 		{
 			var bookToModify = GetBook(bookId);
 			bookToModify.IsArchived = !bookToModify.IsArchived;
-			_bookRepository.ToggleEnabled(bookToModify);
+			_bookRepository.ToggleIsArchived(bookToModify);
 		}
 
 		public Result BorrowBook(string userId, Book book)
@@ -118,16 +123,19 @@ namespace Levi9LibraryServices
 				return Result.Fail("Not Available");
 			}
 			var user = _userService.GetUser(userId);
-			if (user.IsBanned)
+			var currentTime = DateTime.UtcNow;
+			var isBanned = _userService.UpdateBan(user, currentTime);
+			if (isBanned)
 			{
-				var isBanned = _userService.UpdateBan(user);
-				if (isBanned)
+				var lateCount = _userService.GetLateCount(user, currentTime);
+				if (lateCount == 0)
 				{
-					return Result.Fail("Still Banned");
+					return Result.Fail("Banned");
 				}
+				return Result.Fail("Still Banned");
 			}
-			var booksCurrentlyBorrowing = GetBooksCurrentlyBorrowing(userId).ToList();
-			if (booksCurrentlyBorrowing.Count >= LibraryManager.MaxBooksPerUser)
+			var numberOfBooksCurrentlyBorrowing = user.UserBooks.Count(ub => ub.DateReturned == null);
+			if (numberOfBooksCurrentlyBorrowing >= LibraryManager.MaxBooksPerUser)
 			{
 				return Result.Fail("Over Limit");
 			}
@@ -141,15 +149,17 @@ namespace Levi9LibraryServices
 			{
 				Id = userId,
 				BookId = book.BookId,
-				DateBorrowed = DateTime.UtcNow,
+				DateBorrowed = currentTime,
 				DateReturned = null
 			};
 			_bookRepository.BorrowBook(borrowedBook);
+
 			return Result.Ok();
 		}
 
 		public Result ReturnBook(string userId, Book book)
 		{
+			var currentTime = DateTime.UtcNow;
 			if (book == null)
 			{
 				return Result.Fail("Book not found");
@@ -162,16 +172,22 @@ namespace Levi9LibraryServices
 			}
 			book.BorrowedCount--;
 			user.UserScore += book.BookScore;
-			returnedBook.DateReturned = DateTime.UtcNow;
+			returnedBook.DateReturned = currentTime;
 			if (returnedBook.DateReturned - returnedBook.DateBorrowed > LibraryManager.BorrowDuration)
 			{
 				// OverdueCount will be larger than MaxOverDueCount when a user still has unreturned books the moment he is banned
 				// in this case his ban might be longer than the BanDuration, as the ban reinstates itself each time a late book is returned
 				user.OverdueCount++;
 			}
+			_userService.UpdateBan(user, currentTime);
 			_bookRepository.ReturnBook(user, book, returnedBook);
-			_userService.UpdateBan(user);
+
 			return Result.Ok();
+		}
+
+		public void Dispose()
+		{
+			_bookRepository.Dispose();
 		}
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using Levi9LibraryDomain;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 
@@ -34,14 +33,6 @@ namespace Levi9Library.Infrastructure.Repositories
 				.Where(book => !book.IsArchived && book.BorrowedCount < book.Stock);
 		}
 
-		public IList<UserBook> GetUserBooks()
-		{
-			return _context
-				.UserBooks
-				.Include(ub => ub.ApplicationUser)
-				.ToList();
-		}
-
 		public Book GetBook(int bookId)
 		{
 			return _context
@@ -53,6 +44,7 @@ namespace Levi9Library.Infrastructure.Repositories
 		{
 			_context.Books.Add(book);
 			_context.SaveChanges();
+
 			return book.BookId;
 		}
 
@@ -63,11 +55,10 @@ namespace Levi9Library.Infrastructure.Repositories
 			bookToUpdate.Author = book.Author;
 			bookToUpdate.BookScore = book.BookScore;
 			bookToUpdate.Stock = book.Stock;
-
 			_context.SaveChanges();
 		}
 
-		public void ToggleEnabled(Book book)
+		public void ToggleIsArchived(Book book)
 		{
 			_context.Entry(book).State = EntityState.Modified;
 			_context.SaveChanges();
@@ -92,6 +83,11 @@ namespace Levi9Library.Infrastructure.Repositories
 			return _context
 				.UserBooks
 				.FirstOrDefault(ub => ub.Id.Equals(userId) && ub.BookId == bookId && ub.DateReturned == null);
+		}
+
+		public void Dispose()
+		{
+			_context.Dispose();
 		}
 	}
 }

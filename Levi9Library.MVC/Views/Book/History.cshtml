@@ -7,21 +7,19 @@
 	ViewBag.Title = "History";
 }
 
-<p class="float-right">
-	Your score: @Model.UserScore
-</p>
+<div class="float-right">
+	<p>
+		Your score: @Model.UserScore
+	</p>
 
-<p class="float-right"
-   data-toggle="tooltip"
-   title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration.">
-	Status:
-	<span id="displayStatus"></span>
-	<button id="checkStatus">
-		<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
-	</button>
-</p>
+	<p data-toggle="tooltip"
+	   title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration.">
+		Status:
+		<span id="displayStatus"></span>
+	</p>
+</div>
 
-<h3 class="user-titles">Currently borrowing</h3>
+<h3 class="h3-with-margin">Currently borrowing</h3>
 
 @if (Model.CurrentlyBorrowing.Count == 0)
 {
@@ -52,7 +50,7 @@ else
 	</table>
 }
 
-<h3 class="user-titles">Lending history</h3>
+<h3 class="h3-with-margin">Lending history</h3>
 
 @if (Model.BorrowedBooks.Count == 0)
 {
@@ -90,30 +88,33 @@ else
 
 @section Scripts {
 	<script>
-		$(document).ready(function() {
-			$('#checkStatus').click(
-				function() {
-					$.post("/Book/CheckBan",
-						function(data) {
-							if (data.isBanned) {
-								$('#displayStatus').text('Banned');
-								if ($('#displayStatus').hasClass("text-success")) {
-									$('#displayStatus').removeClass("text-success");
-								}
-								$('#displayStatus').addClass("text-danger");
+		function getStatus() {
+			$.post("/Book/CheckBan",
+				function(data) {
+					if (data.isBanned) {
+						$('#displayStatus').text('Banned');
+						if ($('#displayStatus').hasClass("text-success")) {
+							$('#displayStatus').removeClass("text-success");
+						}
+						$('#displayStatus').addClass("text-danger");
 
-							} else {
-								$('#displayStatus').text('OK');
-								if ($('#displayStatus').hasClass("text-danger")) {
-									$('#displayStatus').removeClass("text-danger");
-								}
-								$('#displayStatus').addClass("text-success");
-							}
-						});
+					} else {
+						$('#displayStatus').text('OK');
+						if ($('#displayStatus').hasClass("text-danger")) {
+							$('#displayStatus').removeClass("text-danger");
+						}
+						$('#displayStatus').addClass("text-success");
+					}
 				});
 
-			$('#checkStatus').trigger('click');
-		});
+			setTimeout(function() {
+					getStatus();
+				},
+				2000); //every 2 seconds
+		}
 
+		$(document).ready(function() {
+			getStatus();
+		});
 	</script>
-	}
+}

@@ -34,5 +34,10 @@ namespace Levi9Library.Infrastructure.Repositories
 			_context.Entry(user).State = EntityState.Modified;
 			_context.SaveChanges();
 		}
+
+		public void Dispose()
+		{
+			_context.Dispose();
+		}
 	}
 }

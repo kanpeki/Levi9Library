@@ -7,51 +7,57 @@
 	ViewBag.Title = "Home Page";
 }
 
-<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+<div class="float-right">
+	<p>Your score: @Model.UserScore</p>
+</div>
 
-<p class="float-right">Your score: @Model.UserScore</p>
+@if (TempData["Banned"] != null)
+{
+	<div class="alert alert-danger alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		<p class="alert-text">@TempData["Banned"]</p>
+	</div>
+}
 
 @if (TempData["StillBanned"] != null)
 {
 	<div class="alert alert-danger alert-dismissable">
 		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
-		@TempData["StillBanned"]
-	</div>
+		<p class="alert-text">@TempData["StillBanned"]</p>
+</div>
 }
-
-<h3 class="user-titles">Available books</h3>
 
 @if (TempData["AlreadyBorrowed"] != null)
 {
 	<div class="alert alert-danger alert-dismissable">
 		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
-		@TempData["AlreadyBorrowed"]
 		@{
 			var objectArray = (object[])TempData["BorrowedBook"];
 		}
-		@objectArray[0] by @objectArray[1]
-	</div>
+		<p class="alert-text">@TempData["AlreadyBorrowed"] @objectArray[0] by @objectArray[1]</p>
+</div>
 }
 			
 @if (TempData["OverLimit"] != null)
 {
 	<div class="alert alert-danger alert-dismissable">
 		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
-		@TempData["OverLimit"]
-	</div>
+		<p class="alert-text">@TempData["OverLimit"]</p>
+</div>
 }
 
 @if (TempData["Success"] != null)
 {
 	<div class="alert alert-success alert-dismissable">
 		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
-		@TempData["Success"]
 		@{
 			var objectArray = (object[])TempData["BorrowedBook"];
 		}
-		@objectArray[0] by @objectArray[1]
+		<p class="alert-text">@TempData["Success"] @objectArray[0] by @objectArray[1]</p>
 	</div>
 }
+
+<h3>Available books</h3>
 
 @using (Html.BeginForm("Index", "Book", FormMethod.Get, new { @class = "index-form" }))
 {

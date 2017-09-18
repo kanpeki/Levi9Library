@@ -153,10 +153,13 @@ namespace Levi9Library.MVC.Controllers
 
 			var userId = User.Identity.GetUserId();
 			var user = _userService.GetUser(userId);
+			var currentTime = DateTime.UtcNow;
+
 			var booksCurrentlyBorrowing = _bookService.GetBooksCurrentlyBorrowing(userId);
 			var previouslyBorrowed = _bookService.GetBooksPreviouslyBorrowed(userId);
 			IEnumerable<BookWithDatesNoStockDto> previouslyBorrowedEnum;
-			var isBanned = _userService.UpdateBan(user);
+
+			var isBanned = _userService.UpdateBan(user, currentTime);
 
 			switch (sortOrder)
 			{
@@ -301,7 +304,7 @@ namespace Levi9Library.MVC.Controllers
 		[Authorize(Roles = "Admin")]
 		public ActionResult DeleteConfirmed(int bookId)
 		{
-			_bookService.ToggleEnabled(bookId);
+			_bookService.ToggleIsArchived(bookId);
 			TempData["Deleted"] = "The book was successfully deleted.";
 			return RedirectToAction("Manage");
 		}
@@ -314,7 +317,7 @@ namespace Levi9Library.MVC.Controllers
 			{
 				return HttpNotFound();
 			}
-			_bookService.ToggleEnabled(bookToBeEnabled.BookId);
+			_bookService.ToggleIsArchived(bookToBeEnabled.BookId);
 			TempData["Readded"] = $"You have successfully readded {bookToBeEnabled.Title} by {bookToBeEnabled.Author}.";
 			return RedirectToAction("Manage");
 		}
@@ -348,11 +351,19 @@ namespace Levi9Library.MVC.Controllers
 					TempData["AlreadyBorrowed"] = "You are already borrowing ";
 					TempData["BorrowedBook"] = new object[] { book.Title, book.Author };
 				}
-				else if (result.Error.Equals("Still Banned") && user.LastBannedDate.HasValue)
+				else if (result.Error.Equals("Banned") && user.LastBannedDate.HasValue)
 				{
-					TempData["StillBanned"] = $"You were late {LibraryManager.MaxOverdueCount} times.\n You are banned for "
-											+ GetBanDurationDisplay(user.LastBannedDate.Value + LibraryManager.BanDuration - DateTime.UtcNow)
-											+ ".\n You can only return books during this time.";
+					TempData["Banned"] = $"You were late {LibraryManager.MaxOverdueCount} times.\n" +
+										"You are banned for " +
+										GetBanDurationDisplay(user.LastBannedDate.Value + LibraryManager.BanDuration - DateTime.UtcNow) + ".\n " +
+										"You can only return books during this time.";
+				}
+				else if (result.Error.Equals("Still Banned"))
+				{
+					TempData["StillBanned"] = $"You have {LibraryManager.MaxOverdueCount} or more overdue books.\n" +
+											 "You are banned until you return them and for " +
+											 GetBanDurationDisplay(LibraryManager.BanDuration) + " after that.\n" +
+											 "You can only return books during this time.";
 				}
 				else if (result.Error.Equals("Over Limit"))
 				{
@@ -381,8 +392,12 @@ namespace Levi9Library.MVC.Controllers
 
 		private string GetBanDurationDisplay(TimeSpan duration)
 		{
-			string display = $"{duration.Days} days and {duration:hh\\:mm\\:ss}";
-			return display;
+			string days = duration.Days != 0 ? duration.Days + " days " : "";
+			string hours = duration.Hours != 0 ? duration.Hours + " hours " : "";
+			string minutes = duration.Minutes != 0 ? duration.Minutes + " minutes " : "";
+			string seconds = duration.Seconds != 0 ? duration.Seconds + " seconds" : "";
+
+			return days + hours + minutes + seconds;
 		}
 
 		[HttpPost]
@@ -390,11 +405,22 @@ namespace Levi9Library.MVC.Controllers
 		{
 			var userId = User.Identity.GetUserId();
 			var user = _userService.GetUser(userId);
-			var status = _userService.UpdateBan(user);
+			var currentTime = DateTime.UtcNow;
+			var status = _userService.UpdateBan(user, currentTime);
 			return Json(new
 			{
 				isBanned = status
 			});
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_userService?.Dispose(); //null propagation
+				_bookService?.Dispose();
+			}
+			base.Dispose(disposing);
 		}
 	}
 }
