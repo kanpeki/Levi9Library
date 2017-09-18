@@ -6,8 +6,10 @@ using Microsoft.AspNet.Identity;
 using Omu.ValueInjecter;
 using PagedList;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Levi9Library.Services.DTOs;
 
 namespace Levi9Library.MVC.Controllers
 {
@@ -153,38 +155,40 @@ namespace Levi9Library.MVC.Controllers
 			var user = _userService.GetUser(userId);
 			var booksCurrentlyBorrowing = _bookService.GetBooksCurrentlyBorrowing(userId);
 			var previouslyBorrowed = _bookService.GetBooksPreviouslyBorrowed(userId);
+			IEnumerable<BookWithDatesNoStockDto> previouslyBorrowedEnum;
+			var isBanned = _userService.UpdateBan(user);
 
 			switch (sortOrder)
 			{
 				case "DateReturned":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.DateReturned);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.DateReturned);
 					break;
 				case "Author":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.Author);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.Author);
 					break;
 				case "author_desc":
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.Author);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.Author);
 					break;
 				case "Title":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.Title);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.Title);
 					break;
 				case "title_desc":
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.Title);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.Title);
 					break;
 				case "BookScore":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.BookScore);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.BookScore);
 					break;
 				case "bookscore_desc":
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.BookScore);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.BookScore);
 					break;
 				case "DateBorrowed":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.DateBorrowed);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.DateBorrowed);
 					break;
 				case "dateborrowed_desc":
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.DateBorrowed);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.DateBorrowed);
 					break;
 				default:
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.DateReturned);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.DateReturned);
 					break;
 			}
 
@@ -197,9 +201,9 @@ namespace Levi9Library.MVC.Controllers
 			var model = new HistoryViewModel
 			{
 				CurrentlyBorrowing = booksCurrentlyBorrowing.ToList(),
-				BorrowedBooks = previouslyBorrowed.ToPagedList(pageNumber, pageSize),
+				BorrowedBooks = previouslyBorrowedEnum.ToPagedList(pageNumber, pageSize),
 				UserScore = user.UserScore,
-				IsBanned = user.IsBanned
+				IsBanned = isBanned
 			};
 			return View(model);
 		}
@@ -379,6 +383,18 @@ namespace Levi9Library.MVC.Controllers
 		{
 			string display = $"{duration.Days} days and {duration:hh\\:mm\\:ss}";
 			return display;
+		}
+
+		[HttpPost]
+		public ActionResult CheckBan()
+		{
+			var userId = User.Identity.GetUserId();
+			var user = _userService.GetUser(userId);
+			var status = _userService.UpdateBan(user);
+			return Json(new
+			{
+				isBanned = status
+			});
 		}
 	}
 }

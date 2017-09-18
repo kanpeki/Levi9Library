@@ -36,18 +36,18 @@ namespace Levi9LibraryServices
 		public IList<BookWithDatesNoStockDto> GetBooksCurrentlyBorrowing(string userId)
 		{
 			var userLendingHistory = GetBorrowedBooks(userId);
-			var booksCurrentlyBorrowing = userLendingHistory?.Where(book => book.DateReturned == null);
-			return booksCurrentlyBorrowing?.ToList();
+			var booksCurrentlyBorrowing = userLendingHistory.Where(book => book.DateReturned == null);
+			return booksCurrentlyBorrowing.ToList();
 		}
 
-		public IQueryable<BookWithDatesNoStockDto> GetBooksPreviouslyBorrowed(string userId)
+		public IList<BookWithDatesNoStockDto> GetBooksPreviouslyBorrowed(string userId)
 		{
 			var userLendingHistory = GetBorrowedBooks(userId);
-			var booksPreviouslyBorrowed = userLendingHistory?.Where(book => book.DateReturned != null);
-			return booksPreviouslyBorrowed as IQueryable<BookWithDatesNoStockDto>;
+			var booksPreviouslyBorrowed = userLendingHistory.Where(book => book.DateReturned != null);
+			return booksPreviouslyBorrowed.ToList();
 		}
 
-		private IEnumerable<BookWithDatesNoStockDto> GetBorrowedBooks(string userId)
+		private IList<BookWithDatesNoStockDto> GetBorrowedBooks(string userId)
 		{
 			var books = _bookRepository.GetBooksIncludingDisabled();
 			var userBooks = _bookRepository.GetUserBooks();
@@ -63,7 +63,7 @@ namespace Levi9LibraryServices
 										 DateBorrowed = ub.DateBorrowed,
 										 DateReturned = ub.DateReturned
 									 };
-			return userLendingHistory;
+			return userLendingHistory.ToList();
 		}
 
 		public Book GetBook(int bookId)
@@ -120,8 +120,8 @@ namespace Levi9LibraryServices
 			var user = _userService.GetUser(userId);
 			if (user.IsBanned)
 			{
-				var result = _userService.RemoveBan(user);
-				if (result.IsFailure)
+				var isBanned = _userService.UpdateBan(user);
+				if (isBanned)
 				{
 					return Result.Fail("Still Banned");
 				}
@@ -169,11 +169,8 @@ namespace Levi9LibraryServices
 				// in this case his ban might be longer than the BanDuration, as the ban reinstates itself each time a late book is returned
 				user.OverdueCount++;
 			}
-			if (user.OverdueCount >= LibraryManager.MaxOverdueCount)
-			{
-				_userService.AddBan(user);
-			}
 			_bookRepository.ReturnBook(user, book, returnedBook);
+			_userService.UpdateBan(user);
 			return Result.Ok();
 		}
 	}

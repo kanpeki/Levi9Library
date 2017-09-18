@@ -10,18 +10,15 @@
 <p class="float-right">
 	Your score: @Model.UserScore
 </p>
+
 <p class="float-right"
    data-toggle="tooltip"
    title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration.">
 	Status:
-	@if (!Model.IsBanned)
-	{
-		<span class="text-success">OK</span>
-	}
-	else
-	{
-		<span class="text-danger">Banned</span>
-	}
+	<span id="displayStatus"></span>
+	<button id="checkStatus">
+		<span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+	</button>
 </p>
 
 <h3 class="user-titles">Currently borrowing</h3>
@@ -90,3 +87,33 @@ else
 
 	@Html.PagedListPager(Model.BorrowedBooks, page => Url.Action("History", new { sortOrder = ViewBag.CurrentSort, page }))
 }
+
+@section Scripts {
+	<script>
+		$(document).ready(function() {
+			$('#checkStatus').click(
+				function() {
+					$.post("/Book/CheckBan",
+						function(data) {
+							if (data.isBanned) {
+								$('#displayStatus').text('Banned');
+								if ($('#displayStatus').hasClass("text-success")) {
+									$('#displayStatus').removeClass("text-success");
+								}
+								$('#displayStatus').addClass("text-danger");
+
+							} else {
+								$('#displayStatus').text('OK');
+								if ($('#displayStatus').hasClass("text-danger")) {
+									$('#displayStatus').removeClass("text-danger");
+								}
+								$('#displayStatus').addClass("text-success");
+							}
+						});
+				});
+
+			$('#checkStatus').trigger('click');
+		});
+
+	</script>
+	}

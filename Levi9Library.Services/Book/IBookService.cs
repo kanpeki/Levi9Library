@@ -12,7 +12,7 @@ namespace Levi9LibraryServices
 		IQueryable<Book> GetBooksIncludingDisabled();
 		IQueryable<Book> GetAvailableBooks();
 		IList<BookWithDatesNoStockDto> GetBooksCurrentlyBorrowing(string userId);
-		IQueryable<BookWithDatesNoStockDto> GetBooksPreviouslyBorrowed(string userId);
+		IList<BookWithDatesNoStockDto> GetBooksPreviouslyBorrowed(string userId);
 		Book GetBook(int bookId);
 		int AddBook(string title, string author, int bookScore, int stock);
 		Result UpdateBook(int bookId, string title, string author, int bookScore, int stock, int borrowedCount);

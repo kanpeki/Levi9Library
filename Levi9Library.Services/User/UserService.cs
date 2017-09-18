@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Levi9Library.Core;
 using Levi9LibraryDomain;
 
@@ -18,23 +19,27 @@ namespace Levi9LibraryServices
 			return _userRepository.GetUser(userId);
 		}
 
-		public void AddBan(ApplicationUser user)
+		public bool UpdateBan(ApplicationUser user)
 		{
-			user.IsBanned = true;
-			user.LastBannedDate = DateTime.UtcNow;
-			_userRepository.Update(user);
-		}
-
-		public Result RemoveBan(ApplicationUser user)
-		{
-			if (user.IsBanned && user.LastBannedDate + LibraryManager.BanDuration < DateTime.UtcNow)
+			var currentTime = DateTime.UtcNow;
+			var lateCount = user.UserBooks.Count(book => book.DateReturned == null &&
+														 book.DateBorrowed + LibraryManager.BorrowDuration < currentTime);
+			if (lateCount == 0)
 			{
-				user.IsBanned = false;
-				user.OverdueCount = 0;
-				_userRepository.Update(user);
-				return Result.Ok();
+				if (user.IsBanned && user.LastBannedDate + LibraryManager.BanDuration < currentTime)
+				{
+					user.IsBanned = false;
+					user.OverdueCount = 0;
+					_userRepository.Update(user);
+				}
 			}
-			return Result.Fail("Nothing to update");
+			if (lateCount > 0 && lateCount + user.OverdueCount >= LibraryManager.MaxOverdueCount)
+			{
+				user.IsBanned = true;
+				user.LastBannedDate = DateTime.UtcNow;
+				_userRepository.Update(user);
+			}
+			return user.IsBanned;
 		}
 	}
 }
