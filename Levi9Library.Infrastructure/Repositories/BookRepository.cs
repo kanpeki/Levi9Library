@@ -1,5 +1,4 @@
 ﻿using Levi9LibraryDomain;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 
@@ -14,12 +13,11 @@ namespace Levi9Library.Infrastructure.Repositories
 			_context = context;
 		}
 
-		public IList<Book> GetBooks()
+		public IQueryable<Book> GetBooks()
 		{
 			return _context
 				.Books
-				.Where(book => !book.IsDisabled)
-				.ToList();
+				.Where(book => !book.IsArchived);
 		}
 
 		public IQueryable<Book> GetBooksIncludingDisabled()
@@ -28,20 +26,11 @@ namespace Levi9Library.Infrastructure.Repositories
 				.Books;
 		}
 
-		public IList<Book> GetAvailableBooks()
+		public IQueryable<Book> GetAvailableBooks()
 		{
 			return _context
 				.Books
-				.Where(book => !book.IsDisabled && book.BorrowedCount < book.Stock)
-				.ToList();
-		}
-
-		public IList<UserBook> GetUserBooks()
-		{
-			return _context
-				.UserBooks
-				.Include(ub => ub.ApplicationUser)
-				.ToList();
+				.Where(book => !book.IsArchived && book.BorrowedCount < book.Stock);
 		}
 
 		public Book GetBook(int bookId)
@@ -55,6 +44,7 @@ namespace Levi9Library.Infrastructure.Repositories
 		{
 			_context.Books.Add(book);
 			_context.SaveChanges();
+
 			return book.BookId;
 		}
 
@@ -65,11 +55,10 @@ namespace Levi9Library.Infrastructure.Repositories
 			bookToUpdate.Author = book.Author;
 			bookToUpdate.BookScore = book.BookScore;
 			bookToUpdate.Stock = book.Stock;
-
 			_context.SaveChanges();
 		}
 
-		public void ToggleEnabled(Book book)
+		public void ToggleIsArchived(Book book)
 		{
 			_context.Entry(book).State = EntityState.Modified;
 			_context.SaveChanges();
@@ -79,14 +68,6 @@ namespace Levi9Library.Infrastructure.Repositories
 		{
 			_context.UserBooks.Add(borrowedBook);
 			_context.SaveChanges();
-		}
-
-		public bool IsCurrentlyBorrowed(string userId, int bookId)
-		{
-			var borrowedBook = GetBookToBeReturned(userId, bookId);
-			if (borrowedBook == null)
-				return false;
-			return true;
 		}
 
 		public void ReturnBook(ApplicationUser user, Book book, UserBook bookToBeReturned)
@@ -102,6 +83,11 @@ namespace Levi9Library.Infrastructure.Repositories
 			return _context
 				.UserBooks
 				.FirstOrDefault(ub => ub.Id.Equals(userId) && ub.BookId == bookId && ub.DateReturned == null);
+		}
+
+		public void Dispose()
+		{
+			_context.Dispose();
 		}
 	}
 }

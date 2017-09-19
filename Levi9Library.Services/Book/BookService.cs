@@ -18,7 +18,7 @@ namespace Levi9LibraryServices
 			_bookRepository = bookRepository;
 		}
 
-		public IList<Book> GetBooks()
+		public IQueryable<Book> GetBooks()
 		{
 			return _bookRepository.GetBooks();
 		}
@@ -28,18 +28,34 @@ namespace Levi9LibraryServices
 			return _bookRepository.GetBooksIncludingDisabled();
 		}
 
-		public IList<Book> GetAvailableBooks()
+		public IQueryable<Book> GetAvailableBooks()
 		{
 			return _bookRepository.GetAvailableBooks();
 		}
 
-		public Tuple<IList<BookWithDatesNoStockDto>, IList<BookWithDatesNoStockDto>> GetBorrowedBooks(string userId)
+		public IList<BookWithDatesNoStockDto> GetBooksCurrentlyBorrowing(string userId)
+		{
+			var userLendingHistory = GetBorrowedBooks(userId);
+			var booksCurrentlyBorrowing = userLendingHistory.Where(book => book.DateReturned == null);
+
+			return booksCurrentlyBorrowing.ToList();
+		}
+
+		public IList<BookWithDatesNoStockDto> GetBooksPreviouslyBorrowed(string userId)
+		{
+			var userLendingHistory = GetBorrowedBooks(userId);
+			var booksPreviouslyBorrowed = userLendingHistory.Where(book => book.DateReturned != null);
+
+			return booksPreviouslyBorrowed.ToList();
+		}
+
+		private IList<BookWithDatesNoStockDto> GetBorrowedBooks(string userId)
 		{
 			var books = _bookRepository.GetBooksIncludingDisabled();
-			var userBooks = _bookRepository.GetUserBooks();
+			var user = _userService.GetUser(userId);
+			var userBooks = user.UserBooks;
 			var userLendingHistory = from ub in userBooks
 									 join b in books on ub.BookId equals b.BookId
-									 where ub.ApplicationUser.Id == userId
 									 select new BookWithDatesNoStockDto
 									 {
 										 BookId = b.BookId,
@@ -49,9 +65,8 @@ namespace Levi9LibraryServices
 										 DateBorrowed = ub.DateBorrowed,
 										 DateReturned = ub.DateReturned
 									 };
-			var currentlyBorrowing = userLendingHistory.Where(b => b.DateReturned == null).ToList();
-			var previouslyBorrowed = userLendingHistory.Where(b => b.DateReturned != null).ToList();
-			return new Tuple<IList<BookWithDatesNoStockDto>, IList<BookWithDatesNoStockDto>>(currentlyBorrowing, previouslyBorrowed);
+
+			return userLendingHistory.ToList();
 		}
 
 		public Book GetBook(int bookId)
@@ -69,6 +84,7 @@ namespace Levi9LibraryServices
 				Stock = stock
 			};
 			var newBookId = _bookRepository.AddBook(newBook);
+
 			return newBookId;
 		}
 
@@ -89,37 +105,41 @@ namespace Levi9LibraryServices
 				BorrowedCount = borrowedCount
 			};
 			_bookRepository.UpdateBook(updatedBook);
+
 			return Result.Ok();
 		}
 
-		public void ToggleEnabled(int bookId)
+		public void ToggleIsArchived(int bookId)
 		{
 			var bookToModify = GetBook(bookId);
-			bookToModify.IsDisabled = !bookToModify.IsDisabled;
-			_bookRepository.ToggleEnabled(bookToModify);
+			bookToModify.IsArchived = !bookToModify.IsArchived;
+			_bookRepository.ToggleIsArchived(bookToModify);
 		}
 
 		public Result BorrowBook(string userId, Book book)
 		{
-			if (!(book.BorrowedCount < book.Stock) || book.IsDisabled)
+			var currentTime = DateTime.UtcNow;
+			var user = _userService.GetUser(userId);
+			var isBanned = _userService.UpdateBan(user, currentTime);
+			if (isBanned)
+			{
+				var lateCount = _userService.GetLateCount(user, currentTime);
+				if (lateCount == 0)
+				{
+					return Result.Fail("Banned");
+				}
+				return Result.Fail("Still Banned");
+			}
+			if (!(book.BorrowedCount < book.Stock) || book.IsArchived)
 			{
 				return Result.Fail("Not Available");
 			}
-			var user = _userService.GetUser(userId);
-			if (user.IsBanned)
-			{
-				if (DateTime.UtcNow - user.LastBannedDate < LibraryManager.BanDuration)
-				{
-					return Result.Fail("Still Banned");
-				}
-				user.IsBanned = false;
-				user.OverdueCount = 0;
-			}
-			if (GetBorrowedBooks(userId).Item1.Count >= LibraryManager.MaxBooksPerUser)
+			var numberOfBooksCurrentlyBorrowing = user.UserBooks.Count(ub => ub.DateReturned == null);
+			if (numberOfBooksCurrentlyBorrowing >= LibraryManager.MaxBooksPerUser)
 			{
 				return Result.Fail("Over Limit");
 			}
-			var isBorrowed = _bookRepository.IsCurrentlyBorrowed(userId, book.BookId);
+			var isBorrowed = _bookRepository.GetBookToBeReturned(userId, book.BookId) != null;
 			if (isBorrowed)
 			{
 				return Result.Fail("Already Borrowed");
@@ -129,15 +149,17 @@ namespace Levi9LibraryServices
 			{
 				Id = userId,
 				BookId = book.BookId,
-				DateBorrowed = DateTime.UtcNow,
+				DateBorrowed = currentTime,
 				DateReturned = null
 			};
 			_bookRepository.BorrowBook(borrowedBook);
+
 			return Result.Ok();
 		}
 
 		public Result ReturnBook(string userId, Book book)
 		{
+			var currentTime = DateTime.UtcNow;
 			if (book == null)
 			{
 				return Result.Fail("Book not found");
@@ -150,20 +172,22 @@ namespace Levi9LibraryServices
 			}
 			book.BorrowedCount--;
 			user.UserScore += book.BookScore;
-			returnedBook.DateReturned = DateTime.UtcNow;
+			returnedBook.DateReturned = currentTime;
 			if (returnedBook.DateReturned - returnedBook.DateBorrowed > LibraryManager.BorrowDuration)
 			{
 				// OverdueCount will be larger than MaxOverDueCount when a user still has unreturned books the moment he is banned
 				// in this case his ban might be longer than the BanDuration, as the ban reinstates itself each time a late book is returned
 				user.OverdueCount++;
 			}
-			if (user.OverdueCount >= LibraryManager.MaxOverdueCount)
-			{
-				user.IsBanned = true;
-				user.LastBannedDate = DateTime.UtcNow;
-			}
+			_userService.UpdateBan(user, currentTime);
 			_bookRepository.ReturnBook(user, book, returnedBook);
+
 			return Result.Ok();
+		}
+
+		public void Dispose()
+		{
+			_bookRepository.Dispose();
 		}
 	}
 }

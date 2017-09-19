@@ -1,5 +1,4 @@
-﻿@using System.Web.Mvc.Html
-@using Levi9Library.MVC.Models
+﻿@using Levi9Library.MVC.Models
 @using PagedList.Mvc
 @model ManageViewModel
 @{
@@ -7,11 +6,9 @@
 	ViewBag.Title = "Admin Home";
 }
 
-<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+<h3 class="h3-with-margin">Book Inventory</h3>
 
-<h3>Book Inventory</h3>
-
-<input id="addBookButton" type="button" class="btn btn-default float-right" value="Add book" onclick="location.href='@Url.Action("Create", "Book")'" />
+<input id="addBookButton" type="button" class="btn btn-default" value="Add book" onclick="location.href='@Url.Action("Create", "Book")'" />
 
 @if (TempData["Deleted"] != null)
 {
@@ -29,13 +26,14 @@
 	</div>
 }
 
-@if (String.IsNullOrEmpty(ViewBag.CurrentFilter) && Model.Inventory.Count == 0)
-{
-	<p>The current inventory is empty.</p>
-}
 
 @using (Html.BeginForm("Manage", "Book", FormMethod.Get, new { @class = "manage-form"}))
 {
+	if (String.IsNullOrEmpty(ViewBag.CurrentFilter) && Model.Inventory.Count == 0)
+	{
+		<p class="display-empty">The current inventory is empty.</p>
+	}
+
 	<div id="oldInventorySlider">
 		<p>Show archived entries?</p>
 		<div class="slider">
@@ -46,7 +44,7 @@
 
 	if (Model.OldInventoryIsShown && String.IsNullOrEmpty(ViewBag.CurrentFilter) && Model.Inventory.Count == 0)
 	{
-		<p>There are no archived inventory entries.</p>
+		<p class="display-empty">There are no archived inventory entries.</p>
 	}
 
 	if (Model.Inventory.Count > 0 || (!String.IsNullOrEmpty(ViewBag.CurrentFilter) && Model.Inventory.Count == 0))
@@ -82,7 +80,7 @@
 				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
 				<td class="medium-screen">@Html.DisplayFor(modelItem => entry.BookScore)</td>
 				<td class="medium-screen">@Html.DisplayFor(modelItem => entry.Stock)</td>
-				@if (entry.IsDisabled)
+				@if (entry.IsArchived)
 				{
 					<td data-toggle="tooltip"
 						title="This book was previously removed from the inventory. To edit it, you must first readd it.">
@@ -102,8 +100,9 @@
 	</table>
 	<br />
 
-			<p>Page @(Model.Inventory.PageCount < Model.Inventory.PageNumber ? 0 : Model.Inventory.PageNumber) of @Model.Inventory.PageCount</p>
-			@Html.PagedListPager(Model.Inventory, page =>
+	<p>Page @(Model.Inventory.PageCount < Model.Inventory.PageNumber ? 0 : Model.Inventory.PageNumber) of @Model.Inventory.PageCount</p>
+
+	@Html.PagedListPager(Model.Inventory, page =>
 		Url.Action("Manage", new { page, oldInventoryIsShown = Model.OldInventoryIsShown, currentFilter = ViewBag.CurrentFilter }))
 }
 else if (!String.IsNullOrEmpty(ViewBag.CurrentFilter))
@@ -113,8 +112,10 @@ else if (!String.IsNullOrEmpty(ViewBag.CurrentFilter))
 
 @section Scripts {
 	<script type="text/javascript">
+
 		$('#OldInventoryIsShown').click(function () {
 			$(this).closest('form').submit();
 		});
+
 	</script>
 }

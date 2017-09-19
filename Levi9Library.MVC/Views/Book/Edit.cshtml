@@ -5,7 +5,7 @@
 	ViewBag.Title = "Edit";
 }
 
-<h3>Edit</h3>
+<h3 class="h3-with-margin">Edit</h3>
 
 @*@if((ViewBag.Stock != null && ViewBag.Stock < Model.BorrowedCount) || TempData["StockLessThanBorrowed"] != null)*@
 @if(TempData["StockLessThanBorrowed"] != null)
@@ -59,8 +59,8 @@
 		</div>
 
 		<p>
-			<input type="submit" class="btn" value="Save" />
-			<input type="button" class="btn btn-default" value="Cancel" onclick="location.href='@Url.Action("Manage", "Book")'" />
+			<input type="submit" class="btn btn-default" value="Save" />
+			<input type="button" class="btn" value="Cancel" onclick="location.href='@Url.Action("Manage", "Book")'" />
 		</p>
 	</fieldset>
 }

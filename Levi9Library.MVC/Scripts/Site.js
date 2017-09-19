@@ -1,15 +1,14 @@
-﻿/*$(document).ready(function () {
-	var table = $('#availableBooks').DataTable({
-		"ajax": "data/arrays.txt",
-		"columnDefs": [{
-			"targets": -1,
-			"data": null,
-			"defaultContent": '@Html.ActionLink("Borrow", "Borrow", "Library")'
-		}]
-	});
+﻿$(document).tooltip({
+	 show: null
+});
 
-	$('#availableBooks tbody').on('click', 'Html.ActionLink', function () {
-		var data = table.row($(this).parents('tr')).data();
-		alert(data[0] + "'s salary is: " + data[5]);
-	});
-});*/
+$('.navbar-toggle').click(function () {
+	$(this).toggleClass('open');
+});
+
+$('#wrap').click(function () {
+	if($('.navbar-toggle').hasClass('open')) {
+		$('.navbar-collapse').collapse('toggle');
+		$('.navbar-toggle').toggleClass('open');
+	}
+});

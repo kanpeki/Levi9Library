@@ -1,14 +1,15 @@
 ﻿using Levi9Library.Core;
 using Levi9Library.MVC.Models;
-using Levi9Library.Services.DTOs;
 using Levi9LibraryDomain;
 using Levi9LibraryServices;
 using Microsoft.AspNet.Identity;
 using Omu.ValueInjecter;
 using PagedList;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Levi9Library.Services.DTOs;
 
 namespace Levi9Library.MVC.Controllers
 {
@@ -35,11 +36,6 @@ namespace Levi9Library.MVC.Controllers
 				return RedirectToAction("Manage", "Book");
 			}
 
-			var user = _userService.GetUser(User.Identity.GetUserId());
-			var availableBooks = _bookService
-				.GetAvailableBooks()
-				.Select(b => Mapper.Map<Book, BookViewModel>(b));
-
 			if (searchString != null)
 			{
 				page = 1;
@@ -49,13 +45,14 @@ namespace Levi9Library.MVC.Controllers
 				searchString = currentFilter;
 			}
 
-			ViewBag.SearchString = searchString;
 			ViewBag.CurrentFilter = searchString;
+
+			var availableBooks = _bookService.GetAvailableBooks();
 
 			if (!String.IsNullOrEmpty(searchString))
 			{
-				availableBooks = availableBooks.Where(ab => ab.Author.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0 ||
-															ab.Title.IndexOf(searchString, StringComparison.OrdinalIgnoreCase) >= 0);
+				availableBooks = availableBooks.Where(book => book.Author.ToLower().Contains(searchString.ToLower())
+														   || book.Title.ToLower().Contains(searchString.ToLower()));
 			}
 
 			ViewBag.CurrentSort = sortOrder;
@@ -87,11 +84,14 @@ namespace Levi9Library.MVC.Controllers
 
 			int pageSize = 3;
 			int pageNumber = page ?? 1;
+			var userId = User.Identity.GetUserId();
+			var user = _userService.GetUser(userId);
 
 			var model = new MainViewModel
 			{
 				AvailableBooks = availableBooks.ToPagedList(pageNumber, pageSize),
-				UserScore = user.UserScore
+				UserScore = user.UserScore,
+				IsBanned = user.IsBanned
 			};
 
 			return View(model);
@@ -118,13 +118,13 @@ namespace Levi9Library.MVC.Controllers
 			oldInventoryIsShown = oldInventoryIsShown ?? false;
 			if (oldInventoryIsShown == false)
 			{
-				inventory = inventory.Where(b => !b.IsDisabled);
+				inventory = inventory.Where(b => !b.IsArchived);
 			}
 
 			if (!String.IsNullOrEmpty(searchString))
 			{
-				inventory = inventory.Where(b => b.Author.ToLower().Contains(searchString.ToLower())
-												 || b.Title.ToLower().Contains(searchString.ToLower()));
+				inventory = inventory.Where(book => book.Author.ToLower().Contains(searchString.ToLower())
+												 || book.Title.ToLower().Contains(searchString.ToLower()));
 			}
 
 			int pageSize = 3;
@@ -153,56 +153,61 @@ namespace Levi9Library.MVC.Controllers
 
 			var userId = User.Identity.GetUserId();
 			var user = _userService.GetUser(userId);
-			var userBooks = _bookService.GetBorrowedBooks(userId);
-			var currentlyBorrowing = userBooks.Item1.Select(b => Mapper.Map<BookWithDatesNoStockDto, BorrowedBookViewModel>(b));
-			var previouslyBorrowed = userBooks.Item2.Select(b => Mapper.Map<BookWithDatesNoStockDto, BorrowedBookViewModel>(b));
+			var currentTime = DateTime.UtcNow;
+
+			var booksCurrentlyBorrowing = _bookService.GetBooksCurrentlyBorrowing(userId);
+			var previouslyBorrowed = _bookService.GetBooksPreviouslyBorrowed(userId);
+			IEnumerable<BookWithDatesNoStockDto> previouslyBorrowedEnum;
+
+			var isBanned = _userService.UpdateBan(user, currentTime);
 
 			switch (sortOrder)
 			{
 				case "DateReturned":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.DateReturned);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.DateReturned);
 					break;
 				case "Author":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.Author);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.Author);
 					break;
 				case "author_desc":
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.Author);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.Author);
 					break;
 				case "Title":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.Title);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.Title);
 					break;
 				case "title_desc":
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.Title);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.Title);
 					break;
 				case "BookScore":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.BookScore);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.BookScore);
 					break;
 				case "bookscore_desc":
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.BookScore);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.BookScore);
 					break;
 				case "DateBorrowed":
-					previouslyBorrowed = previouslyBorrowed.OrderBy(ab => ab.DateBorrowed);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderBy(ab => ab.DateBorrowed);
 					break;
 				case "dateborrowed_desc":
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.DateBorrowed);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.DateBorrowed);
 					break;
 				default:
-					previouslyBorrowed = previouslyBorrowed.OrderByDescending(ab => ab.DateReturned);
+					previouslyBorrowedEnum = previouslyBorrowed.OrderByDescending(ab => ab.DateReturned);
 					break;
 			}
 
 			int pageSize = 3;
 			int pageNumber = page ?? 1;
 
-			ViewBag.Times = LibraryManager.MaxOverdueCount;
-			ViewBag.Duration = GetBanDurationDisplay(LibraryManager.BanDuration);
+			ViewBag.LateLimit = LibraryManager.MaxOverdueCount;
+			ViewBag.BanDuration = GetDurationDisplay(LibraryManager.BanDuration);
+			ViewBag.BorrowDuration = GetDurationDisplay(LibraryManager.BorrowDuration);
 
 			var model = new HistoryViewModel
 			{
-				CurrentlyBorrowing = currentlyBorrowing.ToList(),
-				BorrowedBooks = previouslyBorrowed.ToPagedList(pageNumber, pageSize),
+				CurrentlyBorrowing = booksCurrentlyBorrowing.ToList(),
+				BorrowedBooks = previouslyBorrowedEnum.ToPagedList(pageNumber, pageSize),
 				UserScore = user.UserScore,
-				OverdueCount = user.OverdueCount
+				IsBanned = isBanned
 			};
 			return View(model);
 		}
@@ -300,7 +305,7 @@ namespace Levi9Library.MVC.Controllers
 		[Authorize(Roles = "Admin")]
 		public ActionResult DeleteConfirmed(int bookId)
 		{
-			_bookService.ToggleEnabled(bookId);
+			_bookService.ToggleIsArchived(bookId);
 			TempData["Deleted"] = "The book was successfully deleted.";
 			return RedirectToAction("Manage");
 		}
@@ -313,7 +318,7 @@ namespace Levi9Library.MVC.Controllers
 			{
 				return HttpNotFound();
 			}
-			_bookService.ToggleEnabled(bookToBeEnabled.BookId);
+			_bookService.ToggleIsArchived(bookToBeEnabled.BookId);
 			TempData["Readded"] = $"You have successfully readded {bookToBeEnabled.Title} by {bookToBeEnabled.Author}.";
 			return RedirectToAction("Manage");
 		}
@@ -347,11 +352,19 @@ namespace Levi9Library.MVC.Controllers
 					TempData["AlreadyBorrowed"] = "You are already borrowing ";
 					TempData["BorrowedBook"] = new object[] { book.Title, book.Author };
 				}
-				else if (result.Error.Equals("Still Banned") && user.LastBannedDate.HasValue)
+				else if (result.Error.Equals("Banned") && user.LastBannedDate.HasValue)
 				{
-					TempData["StillBanned"] = $"You were late {LibraryManager.MaxOverdueCount} times.\n You are banned for "
-											+ GetBanDurationDisplay(user.LastBannedDate.Value + LibraryManager.BanDuration - DateTime.UtcNow)
-											+ ".\n You can only return books during this time.";
+					TempData["Banned"] = $"You were late {LibraryManager.MaxOverdueCount} times.\n" +
+										"You are banned for " +
+										GetDurationDisplay(user.LastBannedDate.Value + LibraryManager.BanDuration - DateTime.UtcNow) + ".\n " +
+										"You can only return books during this time.";
+				}
+				else if (result.Error.Equals("Still Banned"))
+				{
+					TempData["StillBanned"] = $"You have {LibraryManager.MaxOverdueCount} or more overdue books.\n" +
+											 "You are banned until you return them and for " +
+											 GetDurationDisplay(LibraryManager.BanDuration) + " after that.\n" +
+											 "You can only return books during this time.";
 				}
 				else if (result.Error.Equals("Over Limit"))
 				{
@@ -378,10 +391,37 @@ namespace Levi9Library.MVC.Controllers
 			return RedirectToAction("History");
 		}
 
-		private string GetBanDurationDisplay(TimeSpan duration)
+		private string GetDurationDisplay(TimeSpan duration)
 		{
-			string display = $"{duration.Days} days and {duration:hh\\:mm\\:ss}";
-			return display;
+			string days = duration.Days != 0 ? duration.Days + " days " : "";
+			string hours = duration.Hours != 0 ? duration.Hours + " hours " : "";
+			string minutes = duration.Minutes != 0 ? duration.Minutes + " minutes " : "";
+			string seconds = duration.Seconds != 0 ? duration.Seconds + " seconds" : "";
+
+			return days + hours + minutes + seconds;
+		}
+
+		[HttpPost]
+		public ActionResult CheckBan()
+		{
+			var userId = User.Identity.GetUserId();
+			var user = _userService.GetUser(userId);
+			var currentTime = DateTime.UtcNow;
+			var status = _userService.UpdateBan(user, currentTime);
+			return Json(new
+			{
+				isBanned = status
+			});
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_userService?.Dispose(); //null propagation
+				_bookService?.Dispose();
+			}
+			base.Dispose(disposing);
 		}
 	}
 }

@@ -7,28 +7,29 @@
 	ViewBag.Title = "History";
 }
 
-<p class="float-right">
-	Your score: @Model.UserScore
-</p>
-<p class="float-right"
-   data-toggle="tooltip"
-   title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration.">
-	Status:
-	@if (Model.OverdueCount < ViewBag.Times)
-	{
-		<span class="text-success">OK</span>
-	}
-	else
-	{
-		<span class="text-danger">Banned</span>
-	}
-</p>
+<div class="float-right">
+	<p>
+		Your score: @Model.UserScore
+	</p>
 
-<h3>Currently borrowing</h3>
+	<p @*data-toggle="tooltip"
+	   title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration."*@>
+		Status:
+		<span id="displayStatus"></span>
+	</p>
+</div>
+
+<h3 class="h3-with-margin">Currently borrowing</h3>
+
+<p class="text-info late-warning">
+	You have @ViewBag.BorrowDuration to return a book after borrowing it.
+	<br/>
+	If you are late @ViewBag.LateLimit times or more, you will be banned for @ViewBag.BanDuration.
+</p>
 
 @if (Model.CurrentlyBorrowing.Count == 0)
 {
-	<p>You are not borrowing any books at the moment. </p>
+	<p class="display-empty">You are not borrowing any books at the moment. </p>
 }
 else
 {
@@ -39,7 +40,7 @@ else
 				<th>Title</th>
 				<th>Book Score</th>
 				<th>Date Borrowed</th>
-				<th>Date Returned</th>
+				<th class="hidden-text no-select">Date Returned</th>
 			</tr>
 		</thead>
 		@foreach (var entry in Model.CurrentlyBorrowing)
@@ -55,11 +56,11 @@ else
 	</table>
 }
 
-<h3>Lending history</h3>
+<h3 class="h3-with-margin">Lending history</h3>
 
 @if (Model.BorrowedBooks.Count == 0)
 {
-	<p>Your lending history is empty. </p>
+	<p class="display-empty">Your lending history is empty. </p>
 }
 else
 {
@@ -84,17 +85,42 @@ else
 			</tr>
 		}
 	</table>
+	<br/>
 
-	<p class="page-count">Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount</p>
+	<p>Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount</p>
 
 	@Html.PagedListPager(Model.BorrowedBooks, page => Url.Action("History", new { sortOrder = ViewBag.CurrentSort, page }))
 }
 
-@*<script>
-	$('#bannedAlert').on('click', function() {
-		window.location.reload();
-	});
-	$('#bannedAlert a').on('close', function() {
-			window.location.reload();
+@section Scripts {
+	<script>
+		function getStatus() {
+			$.post("/Book/CheckBan",
+				function(data) {
+					if (data.isBanned) {
+						$('#displayStatus').text('Banned');
+						if ($('#displayStatus').hasClass("text-success")) {
+							$('#displayStatus').removeClass("text-success");
+						}
+						$('#displayStatus').addClass("text-danger");
+
+					} else {
+						$('#displayStatus').text('OK');
+						if ($('#displayStatus').hasClass("text-danger")) {
+							$('#displayStatus').removeClass("text-danger");
+						}
+						$('#displayStatus').addClass("text-success");
+					}
+				});
+
+			setTimeout(function() {
+					getStatus();
+				},
+				2000); //every 2 seconds
+		}
+
+		$(document).ready(function() {
+			getStatus();
 		});
-</script>*@
+	</script>
+}

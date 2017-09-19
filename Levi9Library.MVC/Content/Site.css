@@ -1,5 +1,10 @@
 ﻿@import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
 
+* {
+	margin: 0;
+	padding: 0;
+}
+
 html, body {
 	height: 100%;
 	font-family: Roboto, sans-serif;
@@ -16,9 +21,9 @@ fieldset {
 	opacity: .9;
 }
 
-	fieldset .btn {
-		margin-top: 10px;
-	}
+fieldset .btn {
+	margin-top: 10px;
+}
 
 legend {
 	font-size: 110%;
@@ -26,12 +31,45 @@ legend {
 }
 
 h3 {
-	margin-top: 20px;
+	margin: 0;
 }
 
+.h3-with-margin {
+	margin: 30px 0 20px 0;
+}
+
+input#RememberMe {
+	margin-left: 0;
+}
+
+input + input {
+	margin-left: 10px;
+}
+
+.late-warning {
+	margin-bottom: 10px;
+}
+
+.display-empty {
+	clear: both;
+	padding: 10px 0;
+}
+
+/*.not-active {
+	pointer-events: none;   /*blocks focus => does not work with tooltip !1!
+	cursor: default;
+}*/
+
+/*Bootstrap 3 overrides*/
+
 input[type="search"]::-webkit-search-cancel-button {
-	/*Bootstrap 3 override*/
 	-webkit-appearance: searchfield-cancel-button !important;
+}
+
+.alert {
+	display: inline-block;
+	width: 100%;
+	margin: 0;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -53,10 +91,9 @@ textarea {
 	max-width: 280px;
 }
 
-
-/* 
-***** Custom CSS *****
-*/
+.index-form {
+	margin: 10px 0;
+}
 
 /* Navigation */
 .navbar-inverse, .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
@@ -69,6 +106,86 @@ textarea {
 
 .navbar-inverse .navbar-nav > li > a {
 	color: #bbb;
+}
+
+/*.fake-button {
+	padding: 10px 0;
+}
+
+.fake-button a {
+	margin-left: 10px;
+	padding: 5px !important;
+	border: 1px solid #bbb;
+	-ms-border-radius: 5px;
+	border-radius: 5px;
+	max-width: 60px;
+}
+
+.fake-button a:hover {
+	border-color: #fff;
+}*/
+
+.navbar-inverse .navbar-toggle:focus {
+	background-color: transparent;
+}
+
+.navbar-inverse .navbar-toggle:hover {
+	background-color: #bbb;
+}
+
+.navbar-inverse .navbar-form, .navbar-inverse .navbar-toggle, .navbar-inverse .navbar-collapse {
+	border-color: transparent;
+}
+
+.navbar-inverse .navbar-toggle .icon-bar:nth-child(1),
+.navbar-inverse .navbar-toggle .icon-bar:nth-child(2) {
+	margin-bottom: 6px;
+}
+
+.open span:nth-child(1) {
+	-ms-transform-origin: left;
+	-o-transform-origin: left;
+	-webkit-transform-origin: left;
+	transform-origin: left;
+	-ms-transform: rotate(45deg);
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+	-ms-transition-timing-function: ease-in-out;
+	-o-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	-ms-transition: all ease .5s;
+	-o-transition: all ease .5s;
+	-webkit-transition: all ease .5s;
+	transition: all ease .5s;
+}
+
+.open span:nth-child(2) {
+	-ms-transition-timing-function: ease-in-out;
+	-o-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	-ms-opacity: 0;
+	opacity: 0;
+	-ms-transition: all ease .5s;
+	-o-transition: all ease .5s;
+	-webkit-transition: all ease .5s;
+	transition: all ease .5s;
+}
+
+.open span:nth-child(3) {
+	-ms-transform-origin: left;
+	-o-transform-origin: left;
+	-webkit-transform-origin: left;
+	transform-origin: left;
+	-ms-transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+	-ms-transition-timing-function: ease-in-out;
+	-o-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	-ms-transition: all ease .5s;
+	-o-transition: all ease .5s;
+	-webkit-transition: all ease .5s;
+	transition: all ease .5s;
 }
 
 
@@ -97,20 +214,20 @@ footer p {
 
 .float-right {
 	float: right;
+	padding-bottom: 15px;
 }
 
-p.float-right {
+.float-right + * {
+	clear: right;
+}
+
+.float-right p {
 	font-size: 120%;
-	display: block;
 }
 
-	p.float-right:first-of-type {
-		padding-top: 20px;
-	}
-
-	p.float-right + * {
-		clear: both;
-	}
+.float-right p:first-of-type {
+	padding-top: 20px;
+}
 
 .input-group {
 	max-width: 225px;
@@ -118,9 +235,9 @@ p.float-right {
 	padding-bottom: 15px;
 }
 
-	.input-group input {
-		max-width: none;
-	}
+.input-group input {
+	max-width: none;
+}
 
 .custom-label {
 	font-weight: 700;
@@ -133,20 +250,27 @@ p.float-right {
 	padding: 3px 0;
 }
 
-.page-count {
-	margin: -5px;
+.hidden-text {
+	color: transparent;
 }
 
-#addBookButton {
-	margin-bottom: 10px;
+.no-select {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 
 .manage-form {
 	margin-bottom: 20px;
 }
 
+
 #oldInventorySlider {
 	clear: both;
+	margin: 20px 0;
 }
 
 #oldInventorySlider >  p {
@@ -155,6 +279,12 @@ p.float-right {
 
 #oldInventorySlider > * {
 	float: left;
+}
+
+
+#addBookButton {
+	float: right;
+	margin-bottom: 10px;
 }
 
 .slider {
@@ -212,16 +342,18 @@ p.float-right {
 	transform: translateX(100%);
 }
 
-
 .form-control:-moz-placeholder {
 	font-size: 95%;
 }
+
 .form-control::-moz-placeholder {
 	font-size: 95%;
 }
+
 .form-control:-ms-input-placeholder {
 	font-size: 95%;
 }
+
 .form-control::-webkit-input-placeholder {
 	font-size: 95%;
 }
@@ -248,5 +380,11 @@ p.float-right {
 	}
 	.manage-links a:first-child {
 		display: none;
+	}
+}
+
+@media (max-width: 576px) {
+	.alert-text {
+		white-space: pre-wrap;
 	}
 }

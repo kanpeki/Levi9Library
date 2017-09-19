@@ -9,18 +9,18 @@
 	display: inline;
 }
 
-	.pagination > li > a,
-	.pagination > li > span {
-		position: relative;
-		float: left;
-		padding: 6px 12px;
-		margin-left: -1px;
-		line-height: 1.428571429;
-		text-decoration: none;
-		background-color: #fff;
-		border: 1px solid #ddd;
-		color: #777;
-	}
+.pagination > li > a,
+.pagination > li > span {
+	position: relative;
+	float: left;
+	padding: 6px 12px;
+	margin-left: -1px;
+	line-height: 1.428571429;
+	text-decoration: none;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	color: #777;
+}
 
 .pagination > li:first-child > a,
 .pagination > li:first-child > span {
@@ -42,18 +42,18 @@
 	background-color: #eee;
 }
 
-	.pagination > .active > a,
-	.pagination > .active > span,
-	.pagination > .active > a:hover,
-	.pagination > .active > span:hover,
-	.pagination > .active > a:focus,
-	.pagination > .active > span:focus {
-		z-index: 2;
-		color: #fff;
-		cursor: default;
-		background-color: #66afe9;
-		border-color: #66afe9;
-	}
+.pagination > .active > a, 
+.pagination > .active > span, 
+.pagination > .active > a:hover, 
+.pagination > .active > span:hover, 
+.pagination > .active > a:focus, 
+.pagination > .active > span:focus {
+	z-index: 2;
+	color: #fff;
+	cursor: default;
+	background-color: #66afe9;
+	border-color: #66afe9;
+}
 
 .pagination > .disabled > span,
 .pagination > .disabled > a,
