@@ -79,18 +79,18 @@ namespace Levi9Library.Infrastructure.Migrations
 							}
 						);*/
 
-
-			context.Books.AddOrUpdate(
-	b => b.Title,
-	new Book { Title = "Introduction to algorithms", Author = "Thomas H. Cormen", BookScore = 10, Stock = 5 },
-	new Book { Title = "The Art of Computer Programming", Author = "Donald Knuth", BookScore = 30, Stock = 2 },
-	new Book { Title = "Introduction to the Theory of Computation", Author = "Michael Sipser", BookScore = 15, Stock = 3 },
-	new Book { Title = "Code Complete", Author = "Steve McConnell", BookScore = 20, Stock = 2 },
-	new Book { Title = "Modern Operating Systems", Author = "Andrew S. Tanenbaum", BookScore = 10, Stock = 2 },
-	new Book { Title = "Domain-driven Design", Author = "Eric J. Evans", BookScore = 15, Stock = 1 },
-	new Book { Title = "The Clean Coder", Author = "John Martin", BookScore = 20, Stock = 1 },
-	new Book { Title = "Hacking: The Art of Exploitation", Author = "Jon Erickson", BookScore = 10, Stock = 1 }
-);
+			/*
+						context.Books.AddOrUpdate(
+				b => b.Title,
+				new Book { Title = "Introduction to algorithms", Author = "Thomas H. Cormen", BookScore = 10, Stock = 5 },
+				new Book { Title = "The Art of Computer Programming", Author = "Donald Knuth", BookScore = 30, Stock = 2 },
+				new Book { Title = "Introduction to the Theory of Computation", Author = "Michael Sipser", BookScore = 15, Stock = 3 },
+				new Book { Title = "Code Complete", Author = "Steve McConnell", BookScore = 20, Stock = 2 },
+				new Book { Title = "Modern Operating Systems", Author = "Andrew S. Tanenbaum", BookScore = 10, Stock = 2 },
+				new Book { Title = "Domain-driven Design", Author = "Eric J. Evans", BookScore = 15, Stock = 1 },
+				new Book { Title = "The Clean Coder", Author = "John Martin", BookScore = 20, Stock = 1 },
+				new Book { Title = "Hacking: The Art of Exploitation", Author = "Jon Erickson", BookScore = 10, Stock = 1 }
+			);*/
 
 			/*			context.Books.AddOrUpdate(
 							b => b.Title,
