@@ -12,8 +12,8 @@
 		Your score: @Model.UserScore
 	</p>
 
-	<p data-toggle="tooltip"
-	   title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration.">
+	<p @*data-toggle="tooltip"
+	   title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration."*@>
 		Status:
 		<span id="displayStatus"></span>
 	</p>
@@ -21,9 +21,15 @@
 
 <h3 class="h3-with-margin">Currently borrowing</h3>
 
+<p class="text-info late-warning">
+	You have @ViewBag.BorrowDuration to return a book after borrowing it.
+	<br/>
+	If you are late @ViewBag.LateLimit times or more, you will be banned for @ViewBag.BanDuration.
+</p>
+
 @if (Model.CurrentlyBorrowing.Count == 0)
 {
-	<p>You are not borrowing any books at the moment. </p>
+	<p class="display-empty">You are not borrowing any books at the moment. </p>
 }
 else
 {
@@ -54,7 +60,7 @@ else
 
 @if (Model.BorrowedBooks.Count == 0)
 {
-	<p>Your lending history is empty. </p>
+	<p class="display-empty">Your lending history is empty. </p>
 }
 else
 {

@@ -118,12 +118,8 @@ namespace Levi9LibraryServices
 
 		public Result BorrowBook(string userId, Book book)
 		{
-			if (!(book.BorrowedCount < book.Stock) || book.IsArchived)
-			{
-				return Result.Fail("Not Available");
-			}
-			var user = _userService.GetUser(userId);
 			var currentTime = DateTime.UtcNow;
+			var user = _userService.GetUser(userId);
 			var isBanned = _userService.UpdateBan(user, currentTime);
 			if (isBanned)
 			{
@@ -133,6 +129,10 @@ namespace Levi9LibraryServices
 					return Result.Fail("Banned");
 				}
 				return Result.Fail("Still Banned");
+			}
+			if (!(book.BorrowedCount < book.Stock) || book.IsArchived)
+			{
+				return Result.Fail("Not Available");
 			}
 			var numberOfBooksCurrentlyBorrowing = user.UserBooks.Count(ub => ub.DateReturned == null);
 			if (numberOfBooksCurrentlyBorrowing >= LibraryManager.MaxBooksPerUser)

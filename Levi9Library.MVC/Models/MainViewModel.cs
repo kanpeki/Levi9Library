@@ -5,8 +5,8 @@ namespace Levi9Library.MVC.Models
 {
 	public class MainViewModel
 	{
-		public IPagedList<Book> AvailableBooks;
-		public int UserScore;
-		public bool IsBanned;
+		public IPagedList<Book> AvailableBooks { get; set; }
+		public int UserScore { get; set; }
+		public bool IsBanned { get; set; }
 	}
 }

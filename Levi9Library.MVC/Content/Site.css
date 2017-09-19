@@ -38,6 +38,28 @@ h3 {
 	margin: 30px 0 20px 0;
 }
 
+input#RememberMe {
+	margin-left: 0;
+}
+
+input + input {
+	margin-left: 10px;
+}
+
+.late-warning {
+	margin-bottom: 10px;
+}
+
+.display-empty {
+	clear: both;
+	padding: 10px 0;
+}
+
+/*.not-active {
+	pointer-events: none;   /*blocks focus => does not work with tooltip !1!
+	cursor: default;
+}*/
+
 /*Bootstrap 3 overrides*/
 
 input[type="search"]::-webkit-search-cancel-button {
@@ -45,7 +67,9 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 .alert {
-	margin: 20px 0;
+	display: inline-block;
+	width: 100%;
+	margin: 0;
 }
 
 /* Set padding to keep content from hitting the edges */
@@ -84,6 +108,86 @@ textarea {
 	color: #bbb;
 }
 
+/*.fake-button {
+	padding: 10px 0;
+}
+
+.fake-button a {
+	margin-left: 10px;
+	padding: 5px !important;
+	border: 1px solid #bbb;
+	-ms-border-radius: 5px;
+	border-radius: 5px;
+	max-width: 60px;
+}
+
+.fake-button a:hover {
+	border-color: #fff;
+}*/
+
+.navbar-inverse .navbar-toggle:focus {
+	background-color: transparent;
+}
+
+.navbar-inverse .navbar-toggle:hover {
+	background-color: #bbb;
+}
+
+.navbar-inverse .navbar-form, .navbar-inverse .navbar-toggle, .navbar-inverse .navbar-collapse {
+	border-color: transparent;
+}
+
+.navbar-inverse .navbar-toggle .icon-bar:nth-child(1),
+.navbar-inverse .navbar-toggle .icon-bar:nth-child(2) {
+	margin-bottom: 6px;
+}
+
+.open span:nth-child(1) {
+	-ms-transform-origin: left;
+	-o-transform-origin: left;
+	-webkit-transform-origin: left;
+	transform-origin: left;
+	-ms-transform: rotate(45deg);
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+	-ms-transition-timing-function: ease-in-out;
+	-o-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	-ms-transition: all ease .5s;
+	-o-transition: all ease .5s;
+	-webkit-transition: all ease .5s;
+	transition: all ease .5s;
+}
+
+.open span:nth-child(2) {
+	-ms-transition-timing-function: ease-in-out;
+	-o-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	-ms-opacity: 0;
+	opacity: 0;
+	-ms-transition: all ease .5s;
+	-o-transition: all ease .5s;
+	-webkit-transition: all ease .5s;
+	transition: all ease .5s;
+}
+
+.open span:nth-child(3) {
+	-ms-transform-origin: left;
+	-o-transform-origin: left;
+	-webkit-transform-origin: left;
+	transform-origin: left;
+	-ms-transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+	-ms-transition-timing-function: ease-in-out;
+	-o-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	-ms-transition: all ease .5s;
+	-o-transition: all ease .5s;
+	-webkit-transition: all ease .5s;
+	transition: all ease .5s;
+}
+
 
 /* Footer */
 #wrap {
@@ -119,7 +223,6 @@ footer p {
 
 .float-right p {
 	font-size: 120%;
-/*	display: block;*/
 }
 
 .float-right p:first-of-type {
@@ -160,16 +263,14 @@ footer p {
 	user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 
-#addBookButton {
-	margin-bottom: 10px;
-}
-
 .manage-form {
 	margin-bottom: 20px;
 }
 
+
 #oldInventorySlider {
 	clear: both;
+	margin: 20px 0;
 }
 
 #oldInventorySlider >  p {
@@ -178,6 +279,12 @@ footer p {
 
 #oldInventorySlider > * {
 	float: left;
+}
+
+
+#addBookButton {
+	float: right;
+	margin-bottom: 10px;
 }
 
 .slider {
@@ -235,16 +342,18 @@ footer p {
 	transform: translateX(100%);
 }
 
-
 .form-control:-moz-placeholder {
 	font-size: 95%;
 }
+
 .form-control::-moz-placeholder {
 	font-size: 95%;
 }
+
 .form-control:-ms-input-placeholder {
 	font-size: 95%;
 }
+
 .form-control::-webkit-input-placeholder {
 	font-size: 95%;
 }

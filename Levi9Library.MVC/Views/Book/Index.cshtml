@@ -57,22 +57,29 @@
 	</div>
 }
 
-<h3>Available books</h3>
+<h3 class="h3-with-margin">Available books</h3>
 
-@using (Html.BeginForm("Index", "Book", FormMethod.Get, new { @class = "index-form" }))
+@if (String.IsNullOrEmpty(ViewBag.CurrentFilter) && Model.AvailableBooks.Count == 0)
 {
-	<div class="input-group">
-		@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new {
-																			   @class = "form-control", 
-																			   type="search",
-																			   placeholder = "Search by Author or Title"
-																		   })
-		<span class="input-group-btn">
-			<button class="btn btn-default" type="submit">
-				<span class="glyphicon glyphicon-search"></span>
-			</button>
-		</span>
-	</div>
+	<p class="display-empty">No books are currently available.</p>
+}
+else
+{
+	using (Html.BeginForm("Index", "Book", FormMethod.Get, new { @class = "index-form" }))
+	{
+		<div class="input-group">
+			@Html.TextBox("SearchString", ViewBag.CurrentFilter as string, new {
+				@class = "form-control", 
+				type="search",
+				placeholder = "Search by Author or Title"
+			})
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="submit">
+					<span class="glyphicon glyphicon-search"></span>
+				</button>
+			</span>
+		</div>
+	}
 }
 
 @if (Model.AvailableBooks.Count > 0)
@@ -116,14 +123,8 @@
 
 	@Html.PagedListPager(Model.AvailableBooks, page => Url.Action("Index", new { sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter, page }))
 }
-else
+
+@if (!String.IsNullOrEmpty(ViewBag.CurrentFilter) && Model.AvailableBooks.Count == 0)
 {
-	if (String.IsNullOrEmpty(ViewBag.CurrentFilter))
-	{
-		<p>No books are currently available.</p>
-	}
-	else
-	{
-		<p>No matching books were found.</p>
-	}
+	<p class="display-empty">No matching books were found.</p>
 }

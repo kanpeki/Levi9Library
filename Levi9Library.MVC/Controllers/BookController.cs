@@ -198,8 +198,9 @@ namespace Levi9Library.MVC.Controllers
 			int pageSize = 3;
 			int pageNumber = page ?? 1;
 
-			ViewBag.Times = LibraryManager.MaxOverdueCount;
-			ViewBag.Duration = GetBanDurationDisplay(LibraryManager.BanDuration);
+			ViewBag.LateLimit = LibraryManager.MaxOverdueCount;
+			ViewBag.BanDuration = GetDurationDisplay(LibraryManager.BanDuration);
+			ViewBag.BorrowDuration = GetDurationDisplay(LibraryManager.BorrowDuration);
 
 			var model = new HistoryViewModel
 			{
@@ -355,14 +356,14 @@ namespace Levi9Library.MVC.Controllers
 				{
 					TempData["Banned"] = $"You were late {LibraryManager.MaxOverdueCount} times.\n" +
 										"You are banned for " +
-										GetBanDurationDisplay(user.LastBannedDate.Value + LibraryManager.BanDuration - DateTime.UtcNow) + ".\n " +
+										GetDurationDisplay(user.LastBannedDate.Value + LibraryManager.BanDuration - DateTime.UtcNow) + ".\n " +
 										"You can only return books during this time.";
 				}
 				else if (result.Error.Equals("Still Banned"))
 				{
 					TempData["StillBanned"] = $"You have {LibraryManager.MaxOverdueCount} or more overdue books.\n" +
 											 "You are banned until you return them and for " +
-											 GetBanDurationDisplay(LibraryManager.BanDuration) + " after that.\n" +
+											 GetDurationDisplay(LibraryManager.BanDuration) + " after that.\n" +
 											 "You can only return books during this time.";
 				}
 				else if (result.Error.Equals("Over Limit"))
@@ -390,7 +391,7 @@ namespace Levi9Library.MVC.Controllers
 			return RedirectToAction("History");
 		}
 
-		private string GetBanDurationDisplay(TimeSpan duration)
+		private string GetDurationDisplay(TimeSpan duration)
 		{
 			string days = duration.Days != 0 ? duration.Days + " days " : "";
 			string hours = duration.Hours != 0 ? duration.Hours + " hours " : "";

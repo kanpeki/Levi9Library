@@ -9,7 +9,7 @@
 			@if (HttpContext.Current.User.IsInRole("Admin"))
 			{
 				<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Manage"  && ViewContext.RouteData.Values["Controller"].ToString() == "Book" ? "active" : "")">
-					@Html.ActionLink("Manage", "Manage", "Book")
+					@Html.ActionLink("Inventory", "Manage", "Book")
 				</li>
 			}
 			else
@@ -24,7 +24,9 @@
 			<li class="@(ViewContext.RouteData.Values["Action"].ToString() == "Index" && ViewContext.RouteData.Values["Controller"].ToString() == "Manage" ? "active" : "")">
 				@Html.ActionLink("Hello " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new {title = "Settings"})
 			</li>
-			<li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+			<li>
+				<a href="javascript:document.getElementById('logoutForm').submit()">Log off</a>
+			</li>
 		</ul>
 	}
 }

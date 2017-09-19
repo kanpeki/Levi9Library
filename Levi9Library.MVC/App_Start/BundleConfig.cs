@@ -24,8 +24,12 @@ namespace Levi9Library.MVC
 
 			bundles.Add(new StyleBundle("~/Content/css").Include(
 					  "~/Content/bootstrap.css",
+					  "~/Content/normalize.css",
 					  "~/Content/PagedList.css",
-					  "~/Content/site.css"));
+					  "~/Content/Site.css"));
+
+			bundles.Add(new StyleBundle("~/Scripts/js").Include(
+				"~/Scripts/Site.js"));
 		}
 	}
 }
