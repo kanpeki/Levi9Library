@@ -1,0 +1,390 @@
+﻿@import url('https://fonts.googleapis.com/css?family=Roboto:400,700');
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html, body {
+	height: 100%;
+	font-family: Roboto, sans-serif;
+	font-weight: 400;
+}
+
+body {
+	padding-top: 50px;
+	padding-bottom: 20px;
+}
+
+fieldset {
+	padding-bottom: 10px;
+	opacity: .9;
+}
+
+fieldset .btn {
+	margin-top: 10px;
+}
+
+legend {
+	font-size: 110%;
+	padding-top: 10px;
+}
+
+h3 {
+	margin: 0;
+}
+
+.h3-with-margin {
+	margin: 30px 0 20px 0;
+}
+
+input#RememberMe {
+	margin-left: 0;
+}
+
+input + input {
+	margin-left: 10px;
+}
+
+.late-warning {
+	margin-bottom: 10px;
+}
+
+.display-empty {
+	clear: both;
+	padding: 10px 0;
+}
+
+/*.not-active {
+	pointer-events: none;   /*blocks focus => does not work with tooltip !1!
+	cursor: default;
+}*/
+
+/*Bootstrap 3 overrides*/
+
+input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: searchfield-cancel-button !important;
+}
+
+.alert {
+	display: inline-block;
+	width: 100%;
+	margin: 0;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+	padding: 0 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+	white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+	max-width: 280px;
+}
+
+.index-form {
+	margin: 10px 0;
+}
+
+/* Navigation */
+.navbar-inverse, .navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
+	background: #1434A0;
+}
+
+.navbar-inverse .navbar-brand {
+	color: #fff;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+	color: #bbb;
+}
+
+/*.fake-button {
+	padding: 10px 0;
+}
+
+.fake-button a {
+	margin-left: 10px;
+	padding: 5px !important;
+	border: 1px solid #bbb;
+	-ms-border-radius: 5px;
+	border-radius: 5px;
+	max-width: 60px;
+}
+
+.fake-button a:hover {
+	border-color: #fff;
+}*/
+
+.navbar-inverse .navbar-toggle:focus {
+	background-color: transparent;
+}
+
+.navbar-inverse .navbar-toggle:hover {
+	background-color: #bbb;
+}
+
+.navbar-inverse .navbar-form, .navbar-inverse .navbar-toggle, .navbar-inverse .navbar-collapse {
+	border-color: transparent;
+}
+
+.navbar-inverse .navbar-toggle .icon-bar:nth-child(1),
+.navbar-inverse .navbar-toggle .icon-bar:nth-child(2) {
+	margin-bottom: 6px;
+}
+
+.open span:nth-child(1) {
+	-ms-transform-origin: left;
+	-o-transform-origin: left;
+	-webkit-transform-origin: left;
+	transform-origin: left;
+	-ms-transform: rotate(45deg);
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+	-ms-transition-timing-function: ease-in-out;
+	-o-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	-ms-transition: all ease .5s;
+	-o-transition: all ease .5s;
+	-webkit-transition: all ease .5s;
+	transition: all ease .5s;
+}
+
+.open span:nth-child(2) {
+	-ms-transition-timing-function: ease-in-out;
+	-o-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	-ms-opacity: 0;
+	opacity: 0;
+	-ms-transition: all ease .5s;
+	-o-transition: all ease .5s;
+	-webkit-transition: all ease .5s;
+	transition: all ease .5s;
+}
+
+.open span:nth-child(3) {
+	-ms-transform-origin: left;
+	-o-transform-origin: left;
+	-webkit-transform-origin: left;
+	transform-origin: left;
+	-ms-transform: rotate(-45deg);
+	-webkit-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+	-ms-transition-timing-function: ease-in-out;
+	-o-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	-ms-transition: all ease .5s;
+	-o-transition: all ease .5s;
+	-webkit-transition: all ease .5s;
+	transition: all ease .5s;
+}
+
+
+/* Footer */
+#wrap {
+	padding-left: 15px;
+	padding-right: 15px;
+	min-height: 99%;
+	/* Negative indent footer by it's height */
+	margin: 0 auto -50px;
+}
+
+#push,
+#footer {
+	height: 50px;
+}
+
+footer p {
+	text-align: center;
+	margin: 10px;
+}
+
+.display-inline {
+	display: inline;
+}
+
+.float-right {
+	float: right;
+	padding-bottom: 15px;
+}
+
+.float-right + * {
+	clear: right;
+}
+
+.float-right p {
+	font-size: 120%;
+}
+
+.float-right p:first-of-type {
+	padding-top: 20px;
+}
+
+.input-group {
+	max-width: 225px;
+	padding-top: 5px;
+	padding-bottom: 15px;
+}
+
+.input-group input {
+	max-width: none;
+}
+
+.custom-label {
+	font-weight: 700;
+	padding: 5px 0;
+}
+
+.custom-field {
+	display: block;
+	font-weight: 400;
+	padding: 3px 0;
+}
+
+.hidden-text {
+	color: transparent;
+}
+
+.no-select {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+
+.manage-form {
+	margin-bottom: 20px;
+}
+
+
+#oldInventorySlider {
+	clear: both;
+	margin: 20px 0;
+}
+
+#oldInventorySlider >  p {
+	font-size: 115%;
+}
+
+#oldInventorySlider > * {
+	float: left;
+}
+
+
+#addBookButton {
+	float: right;
+	margin-bottom: 10px;
+}
+
+.slider {
+	padding-left: 20px;
+}
+
+#searchBar {
+	clear: both;
+}
+
+.slider [type="checkbox"] {
+	display: none;
+}
+
+.slider .toggle-label {
+	display: block;
+	width: 40px;
+	height: 20px;
+	position: relative;
+	background: #ddd;
+	-ms-border-radius: 10px;
+	border-radius: 10px;
+	-o-transition: background 0.2s ease;
+	-webkit-transition: background 0.2s ease;
+	-ms-transition: background 0.2s ease;
+	transition: background 0.2s ease;
+	cursor: pointer;
+}
+
+.slider .toggle-label:before {
+	content: '';
+	display: block;
+	width: 50%;
+	height: 100%;
+	background: #fff;
+	-ms-border-radius: 50%;
+	border-radius: 50%;
+	box-shadow: 0 0 0 1px #d1d1d1;
+	position: absolute;
+	left: 0;
+	top: 0;
+	-ms-transition: transform 0.2s ease-in-out;
+	-o-transition: transform 0.2s ease-in-out;
+	-webkit-transition: transform 0.2s ease-in-out;
+	transition: transform 0.2s ease-in-out;
+}
+
+.slider [type="checkbox"]:checked ~ .toggle-label {
+	background: #66afe9;
+}
+
+.slider [type="checkbox"]:checked ~ .toggle-label:before {
+	-webkit-transform: translateX(100%);
+	-ms-transform: translateX(100%);
+	transform: translateX(100%);
+}
+
+.form-control:-moz-placeholder {
+	font-size: 95%;
+}
+
+.form-control::-moz-placeholder {
+	font-size: 95%;
+}
+
+.form-control:-ms-input-placeholder {
+	font-size: 95%;
+}
+
+.form-control::-webkit-input-placeholder {
+	font-size: 95%;
+}
+
+.medium-screen {
+	display: none;
+}
+
+.manage-links a:first-child {
+	display: inline-table;
+}
+
+.manage-links a:after {
+	content: " | ";
+}
+
+.manage-links a:last-child:after {
+	content: "";
+}
+
+@media (min-width: 768px) {
+	.medium-screen {
+		display: table-cell;
+	}
+	.manage-links a:first-child {
+		display: none;
+	}
+}
+
+@media (max-width: 576px) {
+	.alert-text {
+		white-space: pre-wrap;
+	}
+}

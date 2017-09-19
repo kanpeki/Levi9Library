@@ -1,0 +1,44 @@
+﻿@using Levi9Library.MVC.Models
+@model BookViewModel
+
+@{
+	ViewBag.Title = "Book Details";
+}
+
+@if (TempData["Success"] != null)
+{
+	<br />
+
+	<div class="alert alert-success alert-dismissable">
+		<a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+		@TempData["Success"].ToString()
+	</div>
+}
+
+<h3 class="h3-with-margin">Book Details</h3>
+
+<fieldset>
+	<div class="custom-label">
+		Title: 
+		<span class="custom-field">@Model.Title</span>
+	</div>
+	<div class="custom-label">
+		Author: 
+		<span class="custom-field">@Model.Author</span>
+	</div>
+	<div class="custom-label">
+		Book Score: 
+		<span class="custom-field">@Model.BookScore</span>
+	</div>
+	<div class="custom-label">
+		Stock: 
+		<span class="custom-field">@Model.Stock</span>
+	</div>
+</fieldset>
+
+<br/>
+<br/>
+
+<div>
+	@Html.ActionLink("Back to book inventory", "Manage")
+</div>

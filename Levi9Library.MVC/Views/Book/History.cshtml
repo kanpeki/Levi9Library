@@ -1,0 +1,126 @@
+﻿@using PagedList.Mvc
+@using Levi9Library.MVC.Models
+@model HistoryViewModel
+
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	ViewBag.Title = "History";
+}
+
+<div class="float-right">
+	<p>
+		Your score: @Model.UserScore
+	</p>
+
+	<p @*data-toggle="tooltip"
+	   title="If you return a book late @ViewBag.Times times or more you will be banned for @ViewBag.Duration."*@>
+		Status:
+		<span id="displayStatus"></span>
+	</p>
+</div>
+
+<h3 class="h3-with-margin">Currently borrowing</h3>
+
+<p class="text-info late-warning">
+	You have @ViewBag.BorrowDuration to return a book after borrowing it.
+	<br/>
+	If you are late @ViewBag.LateLimit times or more, you will be banned for @ViewBag.BanDuration.
+</p>
+
+@if (Model.CurrentlyBorrowing.Count == 0)
+{
+	<p class="display-empty">You are not borrowing any books at the moment. </p>
+}
+else
+{
+	<table id="currentlyBorrowing" class="table table-hover">
+		<thead>
+			<tr>
+				<th>Author</th>
+				<th>Title</th>
+				<th>Book Score</th>
+				<th>Date Borrowed</th>
+				<th class="hidden-text no-select">Date Returned</th>
+			</tr>
+		</thead>
+		@foreach (var entry in Model.CurrentlyBorrowing)
+		{
+			<tr>
+				<td>@Html.DisplayFor(modelItem => entry.Author)</td>
+				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
+				<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
+				<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
+				<td>@Html.ActionLink("Return", "Return", new { bookId = entry.BookId })</td>
+			</tr>
+		}
+	</table>
+}
+
+<h3 class="h3-with-margin">Lending history</h3>
+
+@if (Model.BorrowedBooks.Count == 0)
+{
+	<p class="display-empty">Your lending history is empty. </p>
+}
+else
+{
+	<table id="bookHistory" class="table table-hover">
+		<thead>
+			<tr>
+				<th>@Html.ActionLink("Author", "History", new { sortOrder = ViewBag.AuthorSort })</th>
+				<th>@Html.ActionLink("Title", "History", new { sortOrder = ViewBag.TitleSort })</th>
+				<th>@Html.ActionLink("Book Score", "History", new { sortOrder = ViewBag.BookScoreSort })</th>
+				<th>@Html.ActionLink("Date Borrowed", "History", new { sortOrder = ViewBag.DateBorrowedSort })</th>
+				<th>@Html.ActionLink("Date Returned", "History", new { sortOrder = ViewBag.DateReturnedSort })</th>
+			</tr>
+		</thead>
+		@foreach (var entry in Model.BorrowedBooks)
+		{
+			<tr>
+				<td>@Html.DisplayFor(modelItem => entry.Author)</td>
+				<td>@Html.DisplayFor(modelItem => entry.Title)</td>
+				<td>@Html.DisplayFor(modelItem => entry.BookScore)</td>
+				<td>@Html.DisplayFor(modelItem => entry.DateBorrowed)</td>
+				<td>@Html.DisplayFor(modelItem => entry.DateReturned)</td>
+			</tr>
+		}
+	</table>
+	<br/>
+
+	<p>Page @(Model.BorrowedBooks.PageCount < Model.BorrowedBooks.PageNumber ? 0 : Model.BorrowedBooks.PageNumber) of @Model.BorrowedBooks.PageCount</p>
+
+	@Html.PagedListPager(Model.BorrowedBooks, page => Url.Action("History", new { sortOrder = ViewBag.CurrentSort, page }))
+}
+
+@section Scripts {
+	<script>
+		function getStatus() {
+			$.post("/Book/CheckBan",
+				function(data) {
+					if (data.isBanned) {
+						$('#displayStatus').text('Banned');
+						if ($('#displayStatus').hasClass("text-success")) {
+							$('#displayStatus').removeClass("text-success");
+						}
+						$('#displayStatus').addClass("text-danger");
+
+					} else {
+						$('#displayStatus').text('OK');
+						if ($('#displayStatus').hasClass("text-danger")) {
+							$('#displayStatus').removeClass("text-danger");
+						}
+						$('#displayStatus').addClass("text-success");
+					}
+				});
+
+			setTimeout(function() {
+					getStatus();
+				},
+				2000); //every 2 seconds
+		}
+
+		$(document).ready(function() {
+			getStatus();
+		});
+	</script>
+}
