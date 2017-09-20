@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="Levi9Library.MVC.Azure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="5" osVersion="*" schemaVersion="2015-04.2.6">
+  <Role name="Levi9Library.MVC">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="DefaultEndpointsProtocol=https;AccountName=levi9library;AccountKey=$(_levi9library.key_)" />
+      <Setting name="APPINSIGHTS_INSTRUMENTATIONKEY" value="7ee958a7-048f-4929-a10e-c63e7f63448a" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>

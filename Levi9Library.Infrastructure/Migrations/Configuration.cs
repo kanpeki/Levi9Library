@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using Levi9Library.Core;
 using Levi9LibraryDomain;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -90,7 +87,8 @@ namespace Levi9Library.Infrastructure.Migrations
 				new Book { Title = "Domain-driven Design", Author = "Eric J. Evans", BookScore = 15, Stock = 1 },
 				new Book { Title = "The Clean Coder", Author = "John Martin", BookScore = 20, Stock = 1 },
 				new Book { Title = "Hacking: The Art of Exploitation", Author = "Jon Erickson", BookScore = 10, Stock = 1 }
-			);*/
+			);
+			*/
 
 			/*			context.Books.AddOrUpdate(
 							b => b.Title,
