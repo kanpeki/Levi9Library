@@ -30,26 +30,14 @@ namespace Levi9Library.MVC.Controllers
 
 		public ApplicationSignInManager SignInManager
 		{
-			get
-			{
-				return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
-			}
-			private set
-			{
-				_signInManager = value;
-			}
+			get => _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+			private set => _signInManager = value;
 		}
 
 		public ApplicationUserManager UserManager
 		{
-			get
-			{
-				return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-			}
-			private set
-			{
-				_userManager = value;
-			}
+			get => _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+			private set => _userManager = value;
 		}
 
 
@@ -83,10 +71,10 @@ namespace Levi9Library.MVC.Controllers
 				case SignInStatus.LockedOut:
 					return View("Lockout");
 				case SignInStatus.RequiresVerification:
-					return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+					return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, model.RememberMe });
 				case SignInStatus.Failure:
 				default:
-					ModelState.AddModelError("", "Invalid login attempt.");
+					ModelState.AddModelError("", @"Invalid login attempt.");
 					return View(model);
 			}
 		}
@@ -129,7 +117,7 @@ namespace Levi9Library.MVC.Controllers
 					return View("Lockout");
 				case SignInStatus.Failure:
 				default:
-					ModelState.AddModelError("", "Invalid code.");
+					ModelState.AddModelError("", @"Invalid code.");
 					return View(model);
 			}
 		}
@@ -314,7 +302,7 @@ namespace Levi9Library.MVC.Controllers
 			{
 				return View("Error");
 			}
-			return RedirectToAction("VerifyCode", new { Provider = model.SelectedProvider, ReturnUrl = model.ReturnUrl, RememberMe = model.RememberMe });
+			return RedirectToAction("VerifyCode", new { Provider = model.SelectedProvider, model.ReturnUrl, model.RememberMe });
 		}
 
 
@@ -427,13 +415,7 @@ namespace Levi9Library.MVC.Controllers
 		// Used for XSRF protection when adding external logins
 		private const string XsrfKey = "XsrfId";
 
-		private IAuthenticationManager AuthenticationManager
-		{
-			get
-			{
-				return HttpContext.GetOwinContext().Authentication;
-			}
-		}
+		private IAuthenticationManager AuthenticationManager => HttpContext.GetOwinContext().Authentication;
 
 		private void AddErrors(IdentityResult result)
 		{

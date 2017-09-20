@@ -40,7 +40,7 @@ namespace Levi9LibraryDomain
 		{
 			if (identity == null)
 			{
-				throw new ArgumentNullException("identity");
+				throw new ArgumentNullException(nameof(identity));
 			}
 			var ci = identity as ClaimsIdentity;
 			return ci?.FindFirstValue("UserScore");
@@ -50,7 +50,7 @@ namespace Levi9LibraryDomain
 		{
 			if (identity == null)
 			{
-				throw new ArgumentNullException("identity");
+				throw new ArgumentNullException(nameof(identity));
 			}
 			var ci = identity as ClaimsIdentity;
 			return ci?.FindFirstValue("OverdueCount");
@@ -60,7 +60,7 @@ namespace Levi9LibraryDomain
 		{
 			if (identity == null)
 			{
-				throw new ArgumentNullException("identity");
+				throw new ArgumentNullException(nameof(identity));
 			}
 			var ci = identity as ClaimsIdentity;
 			return ci?.FindFirstValue("IsBanned");
@@ -70,7 +70,7 @@ namespace Levi9LibraryDomain
 		{
 			if (identity == null)
 			{
-				throw new ArgumentNullException("identity");
+				throw new ArgumentNullException(nameof(identity));
 			}
 			var ci = identity as ClaimsIdentity;
 			return ci?.FindFirstValue("LastBannedDate");

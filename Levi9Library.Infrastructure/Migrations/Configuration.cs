@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using Levi9Library.Core;
 using Levi9LibraryDomain;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;

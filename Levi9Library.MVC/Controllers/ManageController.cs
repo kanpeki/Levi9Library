@@ -177,7 +177,7 @@ namespace Levi9Library.MVC.Controllers
 				return RedirectToAction("Index", new { Message = ManageMessageId.AddPhoneSuccess });
 			}
 			// If we got this far, something failed, redisplay form
-			ModelState.AddModelError("", "Failed to verify phone");
+			ModelState.AddModelError("", @"Failed to verify phone");
 			return View(model);
 		}
 
@@ -337,21 +337,13 @@ namespace Levi9Library.MVC.Controllers
 		private bool HasPassword()
 		{
 			var user = UserManager.FindById(User.Identity.GetUserId());
-			if (user != null)
-			{
-				return user.PasswordHash != null;
-			}
-			return false;
+			return user?.PasswordHash != null;
 		}
 
 		private bool HasPhoneNumber()
 		{
 			var user = UserManager.FindById(User.Identity.GetUserId());
-			if (user != null)
-			{
-				return user.PhoneNumber != null;
-			}
-			return false;
+			return user?.PhoneNumber != null;
 		}
 
 		public enum ManageMessageId

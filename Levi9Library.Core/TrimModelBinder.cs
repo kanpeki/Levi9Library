@@ -13,14 +13,7 @@ namespace Levi9Library.Core
 			if (propertyDescriptor.PropertyType == typeof(string))
 			{
 				var stringValue = (string)value;
-				if (!string.IsNullOrWhiteSpace(stringValue))
-				{
-					value = stringValue.Trim();
-				}
-				else
-				{
-					value = null;
-				}
+				value = !string.IsNullOrWhiteSpace(stringValue) ? stringValue.Trim() : null;
 			}
 			base.SetProperty(controllerContext, bindingContext,
 				propertyDescriptor, value);
